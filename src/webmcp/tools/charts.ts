@@ -9,13 +9,21 @@ const PAD = { left: 64, right: 28, top: 56, bottom: 56 };
 /** Extra bottom room so a legend cannot sit on top of the x-axis labels. */
 const LEGEND_ROOM = 34;
 
-/** Round the axis maximum up to something a human would choose. */
+/**
+ * Round the axis maximum up to something a human would choose.
+ *
+ * The ladder is deliberately fine-grained: a coarse 1/2/5 ladder sends a max
+ * of 2.4M all the way up to 5M, so the tallest bar only reaches half the plot
+ * and the chart reads as mostly empty.
+ */
+const NICE_STEPS = [1, 1.25, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+
 function niceMax(value: number): number {
   if (value <= 0) return 1;
   const exp = Math.floor(Math.log10(value));
   const base = 10 ** exp;
   const n = value / base;
-  const step = n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10;
+  const step = NICE_STEPS.find((s) => n <= s) ?? 10;
   return step * base;
 }
 
@@ -84,7 +92,8 @@ Example: {"kind":"bar","title":"Revenue by quarter","labels":["Q1","Q2","Q3","Q4
     specs.push({ tempId: "axis_x", type: "line", x: originX, y: yOf(Math.max(min, 0)), width: plotW, height: 0, strokeColor: MUTED });
 
     // Y ticks
-    const TICKS = 4;
+    // 5 gridlines divide 1.25/2.5/7.5-style maxima without ugly remainders.
+    const TICKS = 5;
     for (let t = 0; t <= TICKS; t++) {
       const v = min + (span * t) / TICKS;
       specs.push({

@@ -91,149 +91,171 @@ npm package; no fork.
 
 ---
 
-## VIDEO SCRIPT — target 2:52, hard ceiling 3:00
+## VIDEO SCRIPT — one story, voice-driven, target 2:55
 
-Setup: ChatGPT desktop app, in-app browser on the live URL, **tool-call section
-expanded** so every call is visible on screen. Agent badge green. No music.
+**The story:** our nightly data pipeline started failing. I work out where, I
+diagram the system, I design a fix, and I write it up — with the agent on the
+same canvas the whole way. Nothing is a disconnected demo; each beat uses what
+the last one produced.
 
-**Before you hit record:** draw 4 boxes by hand on the canvas — three rectangles
-and one diamond, scattered, unaligned, labelled `Ingest`, `Validate`,
-`Retry?` (diamond), `Store`. Demo 2 needs something of *yours* to select.
-Have the CSV and the chapter text already in your clipboard manager.
+**Why voice changes the structure:** you speak the prompts with ChatGPT's mic,
+so the prompt itself costs airtime. The narration below is written to fill the
+gap *while the agent is working* — never to talk over your own prompt. Rhythm:
+
+> **[SPEAK]** the prompt → **[NARRATE]** over the tool calls landing → next beat
+
+Keep the tool-call section expanded so every call is visible on screen.
+
+**Before recording:** hand-draw four rough boxes on the canvas, unaligned —
+`Ingest`, `Validate`, `Retry`, `Load`. Leave them messy; they have to look like
+yours. Have the CSV and the write-up in your clipboard manager.
 
 ---
 
-### 0:00 – 0:18 · Opening (18s)
-*On screen: your four hand-drawn boxes, nothing else.*
+### 0:00 – 0:14 · Open
+
+*On screen: your four messy hand-drawn boxes, nothing else.*
 
 > "Most AI drawing tools hand you a finished picture and step back.
-> This one doesn't step back.
-> Sketchpad Agent is a whiteboard where a human and an agent work the same
-> canvas at the same time. It can see what I've selected. I can move what it
-> drew. And I can undo it without undoing myself.
-> Twenty-five WebMCP tools, running in the page."
+> This one doesn't step back — it works on my canvas, while I'm on it.
+> Our nightly pipeline started failing last week. Let me actually work that out."
 
 ---
 
-### 0:18 – 0:50 · Numbers become a chart (32s)
+### 0:14 – 0:44 · The numbers
 
-**Prompt** (paste the CSV, then this):
-```
-Bar chart this, and call out the best quarter.
-```
+**[SPEAK]** *(paste the CSV first)*
+> "Here are last quarter's pipeline failures by stage. Bar chart it, and call out the worst one."
 
-> "It calls draw_chart — you can see the call there. I give it labels and
-> numbers. No coordinates: the page computes the axes, the ticks, the scale.
-> Then annotate. The chart tool returned an id for every single bar, so the
-> agent can point at one specific bar rather than describing it."
+**[NARRATE while draw_chart and annotate land]**
+> "draw_chart. I hand it labels and numbers — no coordinates. The page computes
+> the axes and the scale. Then annotate, pointing at the stage that's hurting.
+> Load. That's where we're bleeding."
 
 ---
 
-### 0:50 – 1:28 · The collaboration beat (38s) — THE important one
+### 0:44 – 1:04 · It's a live object, not a render
 
-**Do this on camera first:** rubber-band select your four hand-drawn boxes with
-the mouse. Pause a beat so it's obvious *you* did it.
+**[SPEAK]**
+> "That's the one I care about. Make that bar wider, and turn it red."
 
-**Prompt:**
-```
-Make these a horizontal pipeline, colour the decision one yellow, and connect them with arrows.
-```
-
-> "Watch the first call — get_selection. I selected those boxes with my mouse,
-> and it read my selection straight out of the app's state. I never told it
-> which boxes I meant. Then arrange, restyle, add_elements."
-
-**Now drag one box across the canvas with the mouse.**
-
-> "And the arrows follow. Those are real Excalidraw bindings, not lines it drew
-> at coordinates. It handed me back something I can actually keep working on."
+**[NARRATE]**
+> "This is what a generated image can't do. The chart tool handed back an id for
+> every single bar, so it can reach into the exact one I mean. That chart is
+> still an object I can edit — not a picture of a chart."
 
 ---
 
-### 1:28 – 1:54 · Duplicate and diverge (26s)
+### 1:04 – 1:44 · My sketch becomes the real thing  ← the beat that matters
 
-**Prompt:**
-```
-Duplicate that pipeline below it, and make the copy blue so I can tell them apart.
-```
+**Do this on camera:** rubber-band select your four hand-drawn boxes. Pause so
+it is obvious *you* did it.
 
-> "duplicate_elements. It brings the labels and the arrows, mints new ids, and
-> re-binds the arrows to the copy — so the two are independent. I can now take
-> that second one in a different direction without touching the first."
+**[SPEAK]**
+> "These are the pipeline stages I sketched. Turn them into a proper left-to-right flow with arrows, and make Retry a decision diamond."
 
-*(Optional, only if you're ahead of time: drag a box in the copy to show the
-original doesn't move.)*
+**[NARRATE while it works]**
+> "Watch the first call — get_selection. I picked those boxes with my mouse and
+> it read my selection straight out of the app's state. I never told it which
+> boxes I meant. That's the whole idea — we're looking at the same thing."
 
----
+**Now drag one box across the canvas.**
 
-### 1:54 – 2:26 · A chapter becomes a board (32s)
-
-**Prompt** (attach the PDF or paste a few pages, then):
-```
-Map this chapter onto the canvas.
-```
-
-> "One call to draw_board. Section hierarchy, the methodology as a flowchart,
-> results as a table, the experiments on a timeline — four panels, laid out in a
-> grid, each drawn by its own tool.
-> And every tool caps at forty nodes. Ask for one giant diagram of a whole
-> chapter and it refuses, and tells the agent to split it into panels instead.
-> That constraint is what keeps the output readable."
+> "And the arrows follow. Real bindings, not lines drawn at coordinates."
 
 ---
 
-### 2:26 – 2:44 · Safety and how it's built (18s)
+### 1:44 – 2:12 · Designing the fix
+
+**[SPEAK]**
+> "Duplicate that flow underneath. Make the copy my proposed fix — add a dead-letter queue after Retry, and colour the new parts green."
+
+**[NARRATE]**
+> "duplicate_elements. It brings the labels and the arrows, mints fresh ids, and
+> re-binds the arrows to the copy — so the two are independent. Now I have the
+> system as it is, and the system as I want it, side by side, and I can take the
+> second one apart without touching the first."
+
+*Fallback: if it only duplicates and stops, follow up with "now add a
+dead-letter queue box after Retry in the copy and colour it green." Much cheaper
+than a re-take.*
+
+---
+
+### 2:12 – 2:36 · Handing it off
+
+**[SPEAK]** *(paste the write-up)*
+> "Here's my incident write-up. Map it onto the canvas as a board."
+
+**[NARRATE]**
+> "One call to draw_board — the incident timeline, the flow, the numbers, each
+> panel drawn by its own tool. And every tool caps at forty nodes: ask for one
+> giant diagram of a whole document and it refuses, and tells the agent to split
+> it into panels instead. That constraint is what keeps this readable."
+
+---
+
+### 2:36 – 2:55 · Safety, and how it is built
 
 **Click the Agent button, top-right.**
 
-> "Every call it made is listed here, each with its own undo button.
-> undo_agent_step reverses only the agent's work, never mine. Writes are
-> append-only, so it can't overwrite a shape I'm in the middle of drawing."
-
-**Click undo on one entry.**
-
-> "Twenty-five tools registered with document.modelContext.registerTool in the
-> top-level page. Each one is a single zod schema that both validates the input
-> and generates the JSON schema ChatGPT sees — so the two can't drift apart."
-
----
-
-### 2:44 – 2:52 · Close (8s)
-
-> "The agent brings the reading and the judgement. The page keeps the geometry.
-> That split is the whole design. It's open source — link's below."
+> "Every call it made is listed here, each with its own undo button — and it
+> reverses only the agent's work, never mine. Writes are append-only, so it
+> can't overwrite something I'm halfway through drawing.
+> Twenty-five tools, registered with document.modelContext.registerTool in the
+> top-level page. Each is a single zod schema that both validates the input and
+> generates the schema ChatGPT sees, so the two can't drift apart.
+> The agent brings the judgement. The page keeps the geometry. It's open
+> source — link's below."
 
 ---
 
-### If you're running long
-Cut in this order, they're the least load-bearing:
-1. The second half of the board narration (the node-cap sentence) — saves 8s.
-2. The optional drag in the duplicate section.
-3. The "append-only" sentence in the safety beat — saves 5s.
+### If you run long
+Cut in this order — least load-bearing first:
+1. The node-cap sentence in the board beat (−8s)
+2. The box-drag at the end of the sketch beat (−6s)
+3. The "append-only" line in the close (−5s)
 
-**Never cut** the get_selection beat at 0:50. That is the entire argument for
-why this is a WebMCP project and not a chatbot with a render button.
+**Never cut** the get_selection beat at 1:04. It is the entire argument for why
+this is a WebMCP project and not a chatbot with a render button.
+
+### Filming notes
+- One continuous take if you can. Cuts cost more time than they save.
+- Confirm the Agent badge is **green** before you start.
+- If Vercel shows a "Security Checkpoint", turn off Attack Challenge Mode in
+  Vercel → Project → Firewall first.
+- No background music — the rules forbid copyrighted audio.
+- Your face does not need to be on screen. Screen recording plus voice is fine.
 
 ## Paste-ready assets
 
-**CSV for the chart demo:**
+**CSV for the chart demo** — one stage dominates, so "make that bar wider and
+red" is visually unmistakable:
 
 ```
-Quarter,Revenue
-Q1,120
-Q2,190
-Q3,90
-Q4,170
+Stage,Failures
+Ingest,12
+Validate,19
+Transform,7
+Load,41
 ```
 
-**If you have no chapter PDF handy**, paste this instead — it exercises all four
-panel types:
+**Incident write-up for the board beat** — written so the agent has a timeline,
+a flow and a table to split across panels:
 
 ```
-Chapter 3: Method. We recruited 120 participants through university mailing
-lists, excluding anyone with prior exposure to the task. Participants completed
-a baseline measure, then a twelve-week intervention, then a follow-up. Primary
-outcome was task accuracy; secondary outcomes were completion time and reported
-confidence. Analysis used a mixed-effects model. Baseline accuracy was 71%;
-post-intervention accuracy was 88%.
+Incident: nightly pipeline failures, Q3.
+
+Timeline. Failures first appeared on 12 August after the schema change. They
+were intermittent for a week, then constant from 19 August. We noticed on
+23 August when the morning report came out empty. Mitigation shipped 26 August.
+
+Cause. The Load stage retries three times and then drops the record silently.
+Under the new schema roughly one row in forty fails validation downstream, so
+Load was discarding them with no trace.
+
+Stages and failure counts: Ingest 12, Validate 19, Transform 7, Load 41.
+
+Proposed fix. Add a dead-letter queue after Retry so dropped records are
+captured rather than lost, and alert when the queue is non-empty.
 ```

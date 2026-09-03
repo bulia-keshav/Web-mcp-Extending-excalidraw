@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sketchpad Agent — Excalidraw + WebMCP</title>
+    <meta name="description" content="A whiteboard that gets better when a human and an agent draw on it together." />
+    <script>
+      // Must be set before ANY Excalidraw module evaluates, so it cannot live in
+      // main.tsx — ES import hoisting would run the imports first and the font
+      // loader would fall back to a CDN. Classic works-locally/breaks-deployed bug.
+      window.EXCALIDRAW_ASSET_PATH = "/";
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

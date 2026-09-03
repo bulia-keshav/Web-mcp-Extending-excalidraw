@@ -1,0 +1,117 @@
+import type { ToolDef, ToolResult } from "./types";
+import { installShimIfAbsent, currentMode } from "./detect";
+import * as actionStack from "./actionStack";
+
+const registered = new Map<string, ToolDef>();
+
+/** Tracks what the currently-executing tool created/changed, for undo. */
+let capture: { created: string[]; patched: Array<{ id: string; before: Record<string, unknown> }>; removed: string[] } | null = null;
+
+export function noteCreated(ids: string[]) { capture?.created.push(...ids); }
+export function noteRemoved(ids: string[]) { capture?.removed.push(...ids); }
+export function noteBeforePatch(ids: string[]) {
+  if (capture) capture.patched.push(...actionStack.snapshotFor(ids));
+}
+
+function summarize(result: ToolResult): string {
+  if (!result.ok) return `error: ${result.error}`;
+  const r = result as Record<string, unknown>;
+  const bits: string[] = [];
+  for (const key of ["created", "ids", "patched", "deleted", "undone", "nodeIds", "count"]) {
+    const v = r[key];
+    if (Array.isArray(v)) bits.push(`${key}: ${v.length}`);
+    else if (v && typeof v === "object") bits.push(`${key}: ${Object.keys(v).length}`);
+    else if (typeof v === "number") bits.push(`${key}: ${v}`);
+  }
+  return bits.join(", ") || "ok";
+}
+
+/**
+ * Wraps every tool with: zod validation -> undo snapshot -> try/catch ->
+ * action stack + activity panel. A tool body never has to think about any
+ * of this, and a malformed agent call can never crash the page.
+ */
+function wrap(tool: ToolDef) {
+  return async (rawArgs: unknown): Promise<ToolResult> => {
+    const parsed = tool.schema.safeParse(rawArgs ?? {});
+    if (!parsed.success) {
+      const hint = parsed.error.issues
+        .map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`)
+        .join("; ");
+      const result: ToolResult = { ok: false, error: "invalid_input", hint };
+      actionStack.push({ tool: tool.name, summary: hint, ok: false, created: [], patched: [], removed: [] });
+      return result;
+    }
+
+    capture = { created: [], patched: [], removed: [] };
+    let result: ToolResult;
+    try {
+      result = await tool.execute(parsed.data);
+    } catch (err) {
+      result = {
+        ok: false,
+        error: "execution_failed",
+        hint: err instanceof Error ? err.message : String(err),
+      };
+    }
+
+    const taken = capture;
+    capture = null;
+
+    actionStack.push({
+      tool: tool.name,
+      summary: summarize(result),
+      ok: result.ok,
+      created: taken.created,
+      patched: taken.patched,
+      removed: taken.removed,
+    });
+
+    return result;
+  };
+}
+
+export function getTool(name: string) {
+  return registered.get(name);
+}
+
+export function toolNames() {
+  return [...registered.keys()];
+}
+
+/** Direct invocation path shared by the WebMCP host and the dev harness. */
+export async function invoke(name: string, args: unknown): Promise<ToolResult> {
+  const tool = registered.get(name);
+  if (!tool) return { ok: false, error: "unknown_tool", hint: `Known tools: ${toolNames().join(", ")}` };
+  return wrap(tool)(args);
+}
+
+export function registerAll(tools: ToolDef[], signal?: AbortSignal) {
+  const host = installShimIfAbsent();
+  const disposers: Array<() => void> = [];
+
+  for (const tool of tools) {
+    registered.set(tool.name, tool);
+    try {
+      const dispose = host.registerTool({
+        name: tool.name,
+        description: tool.description,
+        inputSchema: tool.inputSchema,
+        annotations: tool.annotations,
+        execute: (args: unknown) => wrap(tool)(args),
+      });
+      if (typeof dispose === "function") disposers.push(dispose);
+    } catch (err) {
+      console.error(`[webmcp] Failed to register "${tool.name}":`, err);
+    }
+  }
+
+  console.info(`[webmcp] Registered ${tools.length} tools (mode: ${currentMode()})`);
+
+  signal?.addEventListener("abort", () => {
+    disposers.forEach((d) => { try { d(); } catch { /* ignore */ } });
+    registered.clear();
+  });
+
+  return () => disposers.forEach((d) => { try { d(); } catch { /* ignore */ } });
+}

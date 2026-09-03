@@ -1,0 +1,31 @@
+:root { color-scheme: light dark; }
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Excalidraw fills its container, so the container must have real dimensions. */
+.excalidraw-host {
+  position: absolute;
+  inset: 0;
+}
+
+.boot-error {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #b3261e;
+  background: #fff8f7;
+  white-space: pre-wrap;
+}

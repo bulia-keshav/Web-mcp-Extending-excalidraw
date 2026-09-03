@@ -38,6 +38,85 @@ export function shapeSyntax(id: string, label: string, shape: MermaidShape = "re
   }
 }
 
+
+let diagramSeq = 0;
+
+/**
+ * A caller's node id is a LABEL, not an identity.
+ *
+ * Feeding it straight to Mermaid caused two bugs: ids like "call", "class",
+ * "end", "graph", "style", "subgraph" are Mermaid keywords and killed the
+ * parse; and because ids survive conversion verbatim, two diagrams using the
+ * same names (h0, or a/b) collided into one scene, leaving arrows bound to
+ * whichever node happened to be found first.
+ *
+ * So callers' ids never reach Mermaid. Each diagram gets its own scope which
+ * hands out opaque, unique, keyword-free tokens, and the caller's own id comes
+ * back to them in `nodeIds`.
+ */
+export type DiagramScope = {
+  prefix: string;
+  /** Stable token for a caller id — same id in, same token out. */
+  tokenFor: (callerId: string) => string;
+  /** callerId -> token, for building the returned nodeIds map. */
+  tokens: Record<string, string>;
+};
+
+export function newDiagramScope(): DiagramScope {
+  diagramSeq += 1;
+  const prefix = `d${Date.now().toString(36)}${diagramSeq}`;
+  const tokens: Record<string, string> = {};
+  let next = 0;
+
+  return {
+    prefix,
+    tokens,
+    tokenFor(callerId: string) {
+      const existing = tokens[callerId];
+      if (existing) return existing;
+      // Short and diagram-local; namespaceElements makes it globally unique.
+      const token = `n${next++}`;
+      tokens[callerId] = token;
+      return token;
+    },
+  };
+}
+
+type Rewritable = Record<string, unknown>;
+
+/**
+ * Make every element id in a freshly converted diagram unique, rewriting all
+ * internal references so bindings keep pointing at the right elements. Applied
+ * to the raw-mermaid path too, where we cannot control the ids at source.
+ */
+function namespaceElements(
+  elements: ExcalidrawElement[],
+  prefix: string,
+): { elements: ExcalidrawElement[]; idMap: Record<string, string> } {
+  const idMap: Record<string, string> = {};
+  for (const el of elements) idMap[el.id] = `${prefix}_${el.id}`;
+
+  const remap = (id: unknown) => (typeof id === "string" && idMap[id] ? idMap[id] : id);
+
+  const out = elements.map((el) => {
+    const e = { ...(el as unknown as Rewritable) };
+    e.id = idMap[el.id];
+
+    for (const key of ["startBinding", "endBinding"]) {
+      const b = e[key] as { elementId?: string } | null | undefined;
+      if (b?.elementId) e[key] = { ...b, elementId: remap(b.elementId) };
+    }
+    if (e.containerId) e.containerId = remap(e.containerId);
+    if (e.frameId) e.frameId = remap(e.frameId);
+    if (Array.isArray(e.boundElements)) {
+      e.boundElements = (e.boundElements as Array<{ id: string }>).map((b) => ({ ...b, id: remap(b.id) as string }));
+    }
+    return e as unknown as ExcalidrawElement;
+  });
+
+  return { elements: out, idMap };
+}
+
 export type MermaidRender = {
   elements: ExcalidrawElement[];
   files: BinaryFiles | null;
@@ -56,8 +135,9 @@ export type MermaidRender = {
 export async function renderMermaid(
   definition: string,
   offset: { x: number; y: number } | null,
-  opts?: { fontSize?: number },
+  opts?: { fontSize?: number; scope?: DiagramScope },
 ): Promise<MermaidRender> {
+  const scope = opts?.scope;
   const { parseMermaidToExcalidraw } = await import("@excalidraw/mermaid-to-excalidraw");
 
   const parsed = await parseMermaidToExcalidraw(definition, {
@@ -111,19 +191,23 @@ export async function renderMermaid(
     return moved;
   });
 
-  const elements = convertToExcalidrawElements(
+  const converted = convertToExcalidrawElements(
     shifted as never,
     { regenerateIds: false },
   ) as unknown as ExcalidrawElement[];
+
+  // Unique per diagram, so drawing the same shape twice cannot collide.
+  const { elements, idMap } = namespaceElements(converted, scope?.prefix ?? newDiagramScope().prefix);
 
   if (parsed.files) {
     requireAPI().addFiles(Object.values(parsed.files));
   }
 
+  // mermaid node id -> the real (namespaced) canvas id
   const nodeIds: Record<string, string> = {};
-  for (const s of skeletons) {
-    const id = s.id as string | undefined;
-    if (id) nodeIds[id] = id;
+  for (const sk of skeletons) {
+    const id = sk.id as string | undefined;
+    if (id && idMap[id]) nodeIds[id] = idMap[id];
   }
 
   let maxX = 0;

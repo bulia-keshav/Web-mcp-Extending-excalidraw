@@ -2,7 +2,7 @@
 
 **A whiteboard that gets better when a human and an agent draw on it together.**
 
-An [Excalidraw](https://excalidraw.com) canvas that exposes **24 WebMCP tools**, so an agent
+An [Excalidraw](https://excalidraw.com) canvas that exposes **25 WebMCP tools**, so an agent
 in a WebMCP-capable browser can co-draw with you: redraw a paper sketch, turn a CSV into a
 chart, build a flowchart from a description, map a whole thesis chapter, or tidy up what you
 already drew.
@@ -70,6 +70,7 @@ follow.
 | `restyle` | Bulk style change across many elements |
 | `arrange` | Reflow elements into a row, column or grid |
 | `annotate` | Callout text plus an arrow bound to a target |
+| `duplicate_elements` | Copy shapes or a whole diagram; arrows re-bind to the copy so it stays independent |
 | `delete_elements` | Soft delete, so undo can restore |
 | `focus_on` | Scroll and zoom the human's view to given elements |
 

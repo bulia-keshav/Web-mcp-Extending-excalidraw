@@ -2,6 +2,7 @@ import type { ToolDef } from "../types";
 import { howToDraw } from "./guide";
 import { getScene, getSelection, getViewport, findElements } from "./inspect";
 import { addElements, updateElements, deleteElements, restyle, focusOn } from "./elements";
+import { duplicateElements } from "./duplicate";
 import { undoAgentStep, clearCanvas } from "./session";
 import { drawFlowchart } from "./flowchart";
 import { drawChart } from "./charts";
@@ -26,6 +27,7 @@ export const allTools: ToolDef[] = [
   // write
   addElements,
   updateElements,
+  duplicateElements,
   deleteElements,
   restyle,
   focusOn,

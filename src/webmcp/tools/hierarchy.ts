@@ -1,5 +1,5 @@
 import { defineTool, z, placementSchema } from "../defineTool";
-import { renderMermaid, shapeSyntax, safeNodeId } from "../../excalidraw/mermaid";
+import { renderMermaid, shapeSyntax, newDiagramScope, type DiagramScope } from "../../excalidraw/mermaid";
 import { appendElements } from "../../excalidraw/sceneOps";
 import { groupElements } from "../../excalidraw/skeleton";
 import { resolvePlacement, type Placement } from "../../excalidraw/placement";
@@ -15,19 +15,23 @@ const treeNode: z.ZodType<TreeNode> = z.lazy(() =>
   }),
 );
 
-function flatten(root: TreeNode) {
+function flatten(root: TreeNode, scope: DiagramScope) {
   const nodes: Array<{ id: string; label: string }> = [];
+  const labelOf: Record<string, string> = {};
   const edges: Array<{ from: string; to: string }> = [];
   let n = 0;
   const walk = (node: TreeNode, parentId: string | null) => {
-    const id = safeNodeId(`h${n}`, n);
+    // Tokens come from the diagram's own scope, so a second hierarchy cannot
+    // reuse h0/h1/h2 and steal the first one's arrow bindings.
+    const id = scope.tokenFor(`h${n}`);
     n += 1;
     nodes.push({ id, label: node.label });
+    labelOf[id] = node.label;
     if (parentId) edges.push({ from: parentId, to: id });
     for (const child of node.children ?? []) walk(child, id);
   };
   walk(root, null);
-  return { nodes, edges };
+  return { nodes, edges, labelOf };
 }
 
 export const drawHierarchy = defineTool({
@@ -46,7 +50,8 @@ Example: {"root":{"label":"Chapter 3","children":[{"label":"Method","children":[
   }),
   annotations: { readOnlyHint: false },
   execute: async ({ root, direction, placement }) => {
-    const { nodes, edges } = flatten(root);
+    const scope = newDiagramScope();
+    const { nodes, edges, labelOf } = flatten(root, scope);
     if (nodes.length > NODE_CAP) {
       return {
         ok: false,
@@ -62,23 +67,31 @@ Example: {"root":{"label":"Chapter 3","children":[{"label":"Method","children":[
 
     let measured;
     try {
-      measured = await renderMermaid(text, { x: 0, y: 0 });
+      measured = await renderMermaid(text, { x: 0, y: 0 }, { scope });
     } catch (err) {
       return { ok: false, error: "layout_failed", hint: err instanceof Error ? err.message : String(err) };
     }
 
     const origin = resolvePlacement(placement as Placement | undefined, measured.width, measured.height);
-    const placed = await renderMermaid(text, origin);
+    const placed = await renderMermaid(text, origin, { scope });
     const { elements, groupId } = groupElements(placed.elements);
 
     appendElements(elements);
     noteCreated(elements.map((el) => el.id));
+
+    // The caller never supplied ids for a tree, so key the map by label —
+    // that is what they will refer to when they want to annotate one node.
+    const nodeIds: Record<string, string> = {};
+    for (const [token, label] of Object.entries(labelOf)) {
+      if (placed.nodeIds[token]) nodeIds[label] = placed.nodeIds[token];
+    }
 
     return {
       ok: true,
       created: elements.map((el) => el.id),
       groupId,
       refId: elements[0]?.id,
+      nodeIds,
       nodeCount: nodes.length,
       placedAt: origin,
       size: { width: Math.round(measured.width), height: Math.round(measured.height) },

@@ -1,5 +1,5 @@
 import { defineTool, z, placementSchema } from "../defineTool";
-import { renderMermaid, escapeLabel, safeNodeId } from "../../excalidraw/mermaid";
+import { renderMermaid, escapeLabel, newDiagramScope } from "../../excalidraw/mermaid";
 import { appendElements } from "../../excalidraw/sceneOps";
 import { groupElements } from "../../excalidraw/skeleton";
 import { resolvePlacement, type Placement } from "../../excalidraw/placement";
@@ -41,8 +41,9 @@ Example: {"nodes":[{"id":"anna","label":"Anna","group":"Family"},{"id":"pyotr","
       };
     }
 
+    const scope = newDiagramScope();
     const idFor: Record<string, string> = {};
-    nodes.forEach((n, i) => { idFor[n.id] = safeNodeId(n.id, i); });
+    nodes.forEach((n) => { idFor[n.id] = scope.tokenFor(n.id); });
 
     const lines = [`flowchart ${direction}`];
 
@@ -59,7 +60,7 @@ Example: {"nodes":[{"id":"anna","label":"Anna","group":"Family"},{"id":"pyotr","
 
     let gi = 0;
     for (const [groupName, members] of groups) {
-      lines.push(`  subgraph g${gi}["${escapeLabel(groupName)}"]`);
+      lines.push(`  subgraph ${scope.prefix}g${gi}["${escapeLabel(groupName)}"]`);
       for (const n of members) lines.push(`    ${idFor[n.id]}["${escapeLabel(n.label)}"]`);
       lines.push("  end");
       gi += 1;
@@ -78,13 +79,13 @@ Example: {"nodes":[{"id":"anna","label":"Anna","group":"Family"},{"id":"pyotr","
 
     let measured;
     try {
-      measured = await renderMermaid(text, { x: 0, y: 0 });
+      measured = await renderMermaid(text, { x: 0, y: 0 }, { scope });
     } catch (err) {
       return { ok: false, error: "layout_failed", hint: err instanceof Error ? err.message : String(err) };
     }
 
     const origin = resolvePlacement(placement as Placement | undefined, measured.width, measured.height);
-    const placed = await renderMermaid(text, origin);
+    const placed = await renderMermaid(text, origin, { scope });
     const { elements, groupId } = groupElements(placed.elements);
 
     appendElements(elements);

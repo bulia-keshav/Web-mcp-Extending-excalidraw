@@ -1,5 +1,5 @@
 import { defineTool, z, placementSchema } from "../defineTool";
-import { renderMermaid, shapeSyntax, safeNodeId, escapeLabel, type MermaidShape } from "../../excalidraw/mermaid";
+import { renderMermaid, shapeSyntax, escapeLabel, newDiagramScope, type DiagramScope, type MermaidShape } from "../../excalidraw/mermaid";
 import { appendElements } from "../../excalidraw/sceneOps";
 import { groupElements } from "../../excalidraw/skeleton";
 import { resolvePlacement, type Placement } from "../../excalidraw/placement";
@@ -24,9 +24,12 @@ export function nodesToMermaid(
   nodes: Array<{ id: string; label: string; shape?: string }>,
   edges: Array<{ from: string; to: string; label?: string }>,
   direction: string,
+  scope: DiagramScope,
 ): { text: string; idFor: Record<string, string> } {
+  // Caller ids are labels only. Mermaid sees opaque tokens, so an id like
+  // "call" or "end" cannot collide with its grammar.
   const idFor: Record<string, string> = {};
-  nodes.forEach((n, i) => { idFor[n.id] = safeNodeId(n.id, i); });
+  nodes.forEach((n) => { idFor[n.id] = scope.tokenFor(n.id); });
 
   const lines = [`flowchart ${direction}`];
   for (const n of nodes) {
@@ -61,6 +64,7 @@ Example: {"nodes":[{"id":"s","label":"Submit","shape":"stadium"},{"id":"d","labe
   }),
   annotations: { readOnlyHint: false },
   execute: async ({ nodes, edges, direction, mermaid, placement }) => {
+    const scope = newDiagramScope();
     let text: string;
     let idFor: Record<string, string> = {};
 
@@ -74,7 +78,7 @@ Example: {"nodes":[{"id":"s","label":"Submit","shape":"stadium"},{"id":"d","labe
           hint: `${nodes.length} nodes exceeds the ${NODE_CAP} cap. Split it into a draw_board with one panel per section, each under 25 nodes.`,
         };
       }
-      const gen = nodesToMermaid(nodes, edges ?? [], direction);
+      const gen = nodesToMermaid(nodes, edges ?? [], direction, scope);
       text = gen.text;
       idFor = gen.idFor;
     } else {
@@ -84,17 +88,21 @@ Example: {"nodes":[{"id":"s","label":"Submit","shape":"stadium"},{"id":"d","labe
     let render;
     try {
       // Lay out at origin first so we know the true size before placing it.
-      render = await renderMermaid(text, { x: 0, y: 0 });
+      render = await renderMermaid(text, { x: 0, y: 0 }, { scope });
     } catch (err) {
       return {
         ok: false,
         error: "mermaid_parse_failed",
-        hint: `${err instanceof Error ? err.message : String(err)}. Check labels for characters that need escaping, or pass nodes/edges instead of raw mermaid.`,
+        hint: `${err instanceof Error ? err.message : String(err)}. ${
+          mermaid?.trim()
+            ? "Check your Mermaid syntax, or pass structured nodes/edges instead and let this tool generate it."
+            : "This came from the label text — check for characters Mermaid treats as syntax."
+        }`,
       };
     }
 
     const origin = resolvePlacement(placement as Placement | undefined, render.width, render.height);
-    const placed = await renderMermaid(text, origin);
+    const placed = await renderMermaid(text, origin, { scope });
 
     const { elements: grouped, groupId } = groupElements(placed.elements);
     appendElements(grouped);

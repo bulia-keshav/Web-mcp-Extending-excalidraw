@@ -11,6 +11,8 @@ import { drawHierarchy } from "./hierarchy";
 import { drawGraph } from "./graph";
 import { drawTimeline } from "./timeline";
 import { drawBoard } from "./board";
+import { placeImage, capturePhoto } from "./images";
+import { exportPng } from "./export";
 
 export const allTools: ToolDef[] = [
   // read
@@ -32,10 +34,14 @@ export const allTools: ToolDef[] = [
   drawGraph,
   drawTimeline,
   drawBoard,
+  // images
+  placeImage,
+  capturePhoto,
   // layout & emphasis
   arrange,
   annotate,
   // session
+  exportPng,
   undoAgentStep,
   clearCanvas,
 ];

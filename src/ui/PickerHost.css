@@ -1,0 +1,56 @@
+.picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.picker-card {
+  width: min(520px, 92vw);
+  padding: 1.25rem 1.4rem 1.1rem;
+  border-radius: 12px;
+  background: var(--island-bg-color, #fff);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+.picker-card h2 { margin: 0 0 0.35rem; font-size: 1.05rem; }
+.picker-card p { margin: 0 0 1rem; font-size: 0.86rem; opacity: 0.75; }
+
+.picker-video {
+  width: 100%;
+  max-height: 52vh;
+  border-radius: 8px;
+  background: #000;
+  object-fit: contain;
+}
+
+.picker-error { color: #b3261e; }
+
+.picker-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.9rem;
+}
+.picker-actions button {
+  padding: 0.45rem 0.9rem;
+  border-radius: 7px;
+  border: 1px solid var(--default-border-color, #d8d8d8);
+  background: transparent;
+  font: inherit;
+  font-size: 0.86rem;
+  cursor: pointer;
+  color: inherit;
+}
+.picker-primary {
+  background: #6965db;
+  border-color: #6965db;
+  color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .picker-card { background: #232329; color: #e9e9ed; }
+  .picker-actions button { border-color: #44444f; }
+}

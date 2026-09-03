@@ -6,6 +6,17 @@ import { requireAPI } from "../../excalidraw/apiRef";
 import { noteCreated, noteRemoved, noteBeforePatch } from "../registry";
 import { NODE_CAP } from "../limits";
 
+const frame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
+
+/** Resolve once Excalidraw reports a real container size (max ~10 frames). */
+async function waitForLayout(api: { getAppState: () => { width: number; height: number } }) {
+  for (let i = 0; i < 10; i++) {
+    const { width, height } = api.getAppState();
+    if (width > 0 && height > 0) return;
+    await frame();
+  }
+}
+
 const shapeEnum = z.enum(["rectangle", "ellipse", "diamond", "text", "arrow", "line", "frame"]);
 
 const skeletonSchema = z.object({
@@ -231,7 +242,7 @@ Example: {"ids":["abc123"]}`,
       .describe("Also highlight the elements. Off by default, because selecting opens Excalidraw's style panel over the canvas."),
   }),
   annotations: { readOnlyHint: false },
-  execute: ({ ids, select }) => {
+  execute: async ({ ids, select }) => {
     const targets = getLiveElements().filter((el) => ids.includes(el.id));
     if (!targets.length) return { ok: false, error: "no_such_elements", hint: "None of those ids are on the canvas." };
 
@@ -243,6 +254,12 @@ Example: {"ids":["abc123"]}`,
         appState: { selectedElementIds: Object.fromEntries(targets.map((el) => [el.id, true])) },
       });
     }
+
+    // Wait for layout to settle. Called straight after a scene update,
+    // scrollToContent could read a container of zero width and collapse the
+    // zoom to Excalidraw's 0.1 floor, leaving the drawing invisibly tiny.
+    await waitForLayout(api);
+
     // fitToViewport centres the content and leaves a margin; fitToContent
     // parked the drawing in the top-left corner instead.
     // animate:false is deliberate — the animated variant was reliably left
@@ -251,8 +268,10 @@ Example: {"ids":["abc123"]}`,
       fitToViewport: true,
       viewportZoomFactor: 0.7,
       animate: false,
+      minZoom: 0.15,
       maxZoom: 1.5,
     });
-    return { ok: true, focused: targets.map((el) => el.id) };
+
+    return { ok: true, focused: targets.map((el) => el.id), zoom: api.getAppState().zoom?.value };
   },
 });

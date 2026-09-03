@@ -10,6 +10,7 @@ import { currentMode } from "./webmcp/detect";
 import { installHarness } from "./dev/harness";
 import { allTools } from "./webmcp/tools";
 import AgentActivityPanel from "./ui/AgentActivityPanel";
+import PickerHost from "./ui/PickerHost";
 
 const initialData = loadScene();
 
@@ -63,6 +64,7 @@ export default function App() {
         )}
       />
       <AgentActivityPanel open={panelOpen} onClose={() => setPanelOpen(false)} mode={mode} />
+      <PickerHost />
     </div>
   );
 }

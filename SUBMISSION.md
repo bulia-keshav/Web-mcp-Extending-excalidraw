@@ -91,84 +91,132 @@ npm package; no fork.
 
 ---
 
-## VIDEO SCRIPT — target 2:50
+## VIDEO SCRIPT — target 2:52, hard ceiling 3:00
 
-Record at 1280x720 or larger, ChatGPT desktop app with the built-in browser open
-on the live URL. No music. Speak over it. Rehearse once, then record.
+Setup: ChatGPT desktop app, in-app browser on the live URL, **tool-call section
+expanded** so every call is visible on screen. Agent badge green. No music.
 
-### 0:00–0:18 — Hook (spoken over the canvas with one box already drawn)
-
-> "This is Sketchpad Agent. It's an Excalidraw whiteboard that exposes
-> twenty-three WebMCP tools, so ChatGPT can draw on the same canvas I'm drawing
-> on. Not generate a picture for me — actually work on my board, while I'm on it."
-
-### 0:18–0:52 — Demo 1: data to chart (paste the CSV, then ask)
-
-Type into ChatGPT: paste the 4-row CSV, then
-*"Bar chart this and point out the best quarter."*
-
-> "It calls draw_chart. I give it labels and series — no coordinates. The page
-> computes the axes, the ticks, the legend. Then annotate, pointing an arrow at
-> the bar it picked out. Notice the tool returned an id for every bar, so the
-> agent can refer to one specific bar afterwards."
-
-### 0:52–1:34 — Demo 2: the collaboration beat (THE important one)
-
-Rubber-band select 3–4 boxes **yourself**, on camera. Then ask:
-*"Make these a horizontal pipeline and colour the decision one yellow."*
-
-> "This is the part a chatbot can't do. I selected those with my mouse. The agent
-> calls get_selection and reads my actual selection out of the app's state — I
-> never told it which boxes I meant. Then arrange and restyle."
-
-Now **drag one box** with the mouse.
-
-> "And the arrows follow, because these are real Excalidraw bindings, not drawn
-> lines."
-
-### 1:34–2:12 — Demo 3: a chapter becomes a board
-
-Attach a PDF / paste a couple of pages. Ask: *"Map this chapter."*
-
-> "One call to draw_board. Section hierarchy, the methodology as a flowchart,
-> results as a table, experiments on a timeline — four panels, laid out in a grid,
-> each drawn by its own tool. And every tool caps at forty nodes: ask for one
-> giant diagram and it refuses and tells the agent to split it into panels
-> instead. That's what keeps the output readable."
-
-### 2:12–2:40 — Safety and how it's wired
-
-Open the **Agent Activity panel**.
-
-> "Every tool call the agent made is listed here, and each one has its own undo
-> button. Undo agent step reverses only what the agent did — never my own
-> drawing. Writes are append-only, so it can't overwrite a shape I'm working on."
-
-Click **undo** on one entry.
-
-> "Twenty-three tools, registered with document dot modelContext dot registerTool
-> in the top-level page. Each one is a zod schema that both validates the input
-> and generates the JSON schema ChatGPT sees, so they can't drift apart."
-
-### 2:40–2:50 — Close
-
-> "The agent brings the reading and the judgement. The page keeps the geometry.
-> That split is the whole design. Repo's open source, link's in the description."
+**Before you hit record:** draw 4 boxes by hand on the canvas — three rectangles
+and one diamond, scattered, unaligned, labelled `Ingest`, `Validate`,
+`Retry?` (diamond), `Store`. Demo 2 needs something of *yours* to select.
+Have the CSV and the chapter text already in your clipboard manager.
 
 ---
 
-## Filming notes
+### 0:00 – 0:18 · Opening (18s)
+*On screen: your four hand-drawn boxes, nothing else.*
 
-- Draw 3–4 boxes by hand **before** recording so demo 2 has something to select.
-- Have the CSV and the chapter text in your clipboard history, ready to paste —
-  do not type them on camera.
-- Before recording: confirm the Agent badge top-right is **green**. Amber means
-  no WebMCP host and the demo won't work.
-- If Vercel shows a "Security Checkpoint" page, turn off Attack Challenge Mode in
-  Vercel → Project → Firewall first.
-- Record one continuous take if you can. Cuts cost more time than they save.
+> "Most AI drawing tools hand you a finished picture and step back.
+> This one doesn't step back.
+> Sketchpad Agent is a whiteboard where a human and an agent work the same
+> canvas at the same time. It can see what I've selected. I can move what it
+> drew. And I can undo it without undoing myself.
+> Twenty-five WebMCP tools, running in the page."
 
-## CSV to paste in demo 1
+---
+
+### 0:18 – 0:50 · Numbers become a chart (32s)
+
+**Prompt** (paste the CSV, then this):
+```
+Bar chart this, and call out the best quarter.
+```
+
+> "It calls draw_chart — you can see the call there. I give it labels and
+> numbers. No coordinates: the page computes the axes, the ticks, the scale.
+> Then annotate. The chart tool returned an id for every single bar, so the
+> agent can point at one specific bar rather than describing it."
+
+---
+
+### 0:50 – 1:28 · The collaboration beat (38s) — THE important one
+
+**Do this on camera first:** rubber-band select your four hand-drawn boxes with
+the mouse. Pause a beat so it's obvious *you* did it.
+
+**Prompt:**
+```
+Make these a horizontal pipeline, colour the decision one yellow, and connect them with arrows.
+```
+
+> "Watch the first call — get_selection. I selected those boxes with my mouse,
+> and it read my selection straight out of the app's state. I never told it
+> which boxes I meant. Then arrange, restyle, add_elements."
+
+**Now drag one box across the canvas with the mouse.**
+
+> "And the arrows follow. Those are real Excalidraw bindings, not lines it drew
+> at coordinates. It handed me back something I can actually keep working on."
+
+---
+
+### 1:28 – 1:54 · Duplicate and diverge (26s)
+
+**Prompt:**
+```
+Duplicate that pipeline below it, and make the copy blue so I can tell them apart.
+```
+
+> "duplicate_elements. It brings the labels and the arrows, mints new ids, and
+> re-binds the arrows to the copy — so the two are independent. I can now take
+> that second one in a different direction without touching the first."
+
+*(Optional, only if you're ahead of time: drag a box in the copy to show the
+original doesn't move.)*
+
+---
+
+### 1:54 – 2:26 · A chapter becomes a board (32s)
+
+**Prompt** (attach the PDF or paste a few pages, then):
+```
+Map this chapter onto the canvas.
+```
+
+> "One call to draw_board. Section hierarchy, the methodology as a flowchart,
+> results as a table, the experiments on a timeline — four panels, laid out in a
+> grid, each drawn by its own tool.
+> And every tool caps at forty nodes. Ask for one giant diagram of a whole
+> chapter and it refuses, and tells the agent to split it into panels instead.
+> That constraint is what keeps the output readable."
+
+---
+
+### 2:26 – 2:44 · Safety and how it's built (18s)
+
+**Click the Agent button, top-right.**
+
+> "Every call it made is listed here, each with its own undo button.
+> undo_agent_step reverses only the agent's work, never mine. Writes are
+> append-only, so it can't overwrite a shape I'm in the middle of drawing."
+
+**Click undo on one entry.**
+
+> "Twenty-five tools registered with document.modelContext.registerTool in the
+> top-level page. Each one is a single zod schema that both validates the input
+> and generates the JSON schema ChatGPT sees — so the two can't drift apart."
+
+---
+
+### 2:44 – 2:52 · Close (8s)
+
+> "The agent brings the reading and the judgement. The page keeps the geometry.
+> That split is the whole design. It's open source — link's below."
+
+---
+
+### If you're running long
+Cut in this order, they're the least load-bearing:
+1. The second half of the board narration (the node-cap sentence) — saves 8s.
+2. The optional drag in the duplicate section.
+3. The "append-only" sentence in the safety beat — saves 5s.
+
+**Never cut** the get_selection beat at 0:50. That is the entire argument for
+why this is a WebMCP project and not a chatbot with a render button.
+
+## Paste-ready assets
+
+**CSV for the chart demo:**
 
 ```
 Quarter,Revenue
@@ -176,4 +224,16 @@ Q1,120
 Q2,190
 Q3,90
 Q4,170
+```
+
+**If you have no chapter PDF handy**, paste this instead — it exercises all four
+panel types:
+
+```
+Chapter 3: Method. We recruited 120 participants through university mailing
+lists, excluding anyone with prior exposure to the task. Participants completed
+a baseline measure, then a twelve-week intervention, then a follow-up. Primary
+outcome was task accuracy; secondary outcomes were completion time and reported
+confidence. Analysis used a mixed-effects model. Baseline accuracy was 71%;
+post-intervention accuracy was 88%.
 ```

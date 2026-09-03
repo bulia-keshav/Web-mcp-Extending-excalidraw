@@ -16,9 +16,14 @@ export function defineTool<S extends z.ZodType>(spec: {
   let inputSchema: Record<string, unknown>;
   try {
     inputSchema = toJSONSchema(spec.schema, { io: "input" }) as Record<string, unknown>;
+    // The site-tools contract expects an object schema that rejects unknown
+    // keys; zod's input-mode output does not always set this at the top level.
+    if (inputSchema.type === "object" && inputSchema.additionalProperties === undefined) {
+      inputSchema.additionalProperties = false;
+    }
   } catch {
     // A schema JSON Schema can't express should not take down registration.
-    inputSchema = { type: "object", additionalProperties: true };
+    inputSchema = { type: "object", properties: {}, additionalProperties: true };
   }
 
   return {

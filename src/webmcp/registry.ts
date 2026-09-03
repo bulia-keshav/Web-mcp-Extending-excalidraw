@@ -1,5 +1,6 @@
 import type { ToolDef, ToolResult } from "./types";
-import { installShimIfAbsent, currentMode } from "./detect";
+import { resolveHosts, currentMode, hostLabels } from "./detect";
+import { whenReady, isReady } from "../excalidraw/apiRef";
 import * as actionStack from "./actionStack";
 
 const registered = new Map<string, ToolDef>();
@@ -104,6 +105,18 @@ function wrap(tool: ToolDef) {
       return result;
     }
 
+    // Registration happens at page load so a host that enumerates tools early
+    // still sees them; the canvas may not exist yet when a call arrives.
+    if (!isReady()) {
+      const ready = await Promise.race([
+        whenReady().then(() => true),
+        new Promise<false>((r) => setTimeout(() => r(false), 15_000)),
+      ]);
+      if (!ready) {
+        return { ok: false, error: "canvas_not_ready", hint: "The whiteboard is still loading. Try again in a moment." };
+      }
+    }
+
     // Reads do not create text, so they never need to wait.
     if (tool.annotations?.readOnlyHint !== true) await ensureFontsReady();
 
@@ -150,26 +163,31 @@ export async function invoke(name: string, args: unknown): Promise<ToolResult> {
 }
 
 export function registerAll(tools: ToolDef[], signal?: AbortSignal) {
-  const host = installShimIfAbsent();
+  const hosts = resolveHosts();
   const disposers: Array<() => void> = [];
 
   for (const tool of tools) {
     registered.set(tool.name, tool);
-    try {
-      const dispose = host.registerTool({
-        name: tool.name,
-        description: tool.description,
-        inputSchema: tool.inputSchema,
-        annotations: tool.annotations,
-        execute: (args: unknown) => wrap(tool)(args),
-      });
-      if (typeof dispose === "function") disposers.push(dispose);
-    } catch (err) {
-      console.error(`[webmcp] Failed to register "${tool.name}":`, err);
+    const handler = wrap(tool);
+    for (const host of hosts) {
+      try {
+        const dispose = host.registerTool({
+          name: tool.name,
+          description: tool.description,
+          inputSchema: tool.inputSchema,
+          annotations: tool.annotations,
+          execute: (args: unknown) => handler(args),
+        });
+        if (typeof dispose === "function") disposers.push(dispose);
+      } catch (err) {
+        console.error(`[webmcp] Failed to register "${tool.name}":`, err);
+      }
     }
   }
 
-  console.info(`[webmcp] Registered ${tools.length} tools (mode: ${currentMode()})`);
+  console.info(
+    `[webmcp] Registered ${tools.length} tools on [${hostLabels().join(", ")}] (mode: ${currentMode()})`,
+  );
 
   signal?.addEventListener("abort", () => {
     disposers.forEach((d) => { try { d(); } catch { /* ignore */ } });

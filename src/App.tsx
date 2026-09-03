@@ -5,10 +5,7 @@ import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
 
 import { setExcalidrawAPI } from "./excalidraw/apiRef";
 import { loadScene, scheduleSave } from "./excalidraw/persistence";
-import { registerAll } from "./webmcp/registry";
 import { currentMode } from "./webmcp/detect";
-import { installHarness } from "./dev/harness";
-import { allTools } from "./webmcp/tools";
 import AgentActivityPanel from "./ui/AgentActivityPanel";
 import PickerHost from "./ui/PickerHost";
 
@@ -24,19 +21,12 @@ export default function App() {
     setApi(next);
   }, []);
 
+  // Tools are registered in main.tsx before React mounts, so a host that
+  // enumerates at page load sees all of them. Here we only reflect the host
+  // status once the canvas is up.
   useEffect(() => {
     if (!api) return;
-
-    // Registration and teardown must stay symmetric. A "register once" guard
-    // here looks harmless but breaks under StrictMode's double-invoke: the
-    // first cleanup clears the registry and the guard blocks re-registration,
-    // leaving the page advertising zero tools.
-    const controller = new AbortController();
-    registerAll(allTools, controller.signal);
-    installHarness();
     setMode(currentMode());
-
-    return () => controller.abort();
   }, [api]);
 
   const onChange = useCallback(

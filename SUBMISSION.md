@@ -93,9 +93,9 @@ npm package; no fork.
 
 ## VIDEO SCRIPT — one story, voice-driven, target 2:50
 
-**The story:** I annealed four samples at four temperatures and measured
-hardness. Which one won, why, and what do I run next week. Every beat uses what
-the last one produced.
+**The story:** I sampled four points on the water network for lead. One is over
+the limit. I find it, diagram the sampling protocol, plan the re-test, and write
+it up. Every beat uses what the last one produced.
 
 **Why voice changes the structure:** you speak the prompts with ChatGPT's mic,
 so the prompt itself costs airtime. The narration below fills the gap *while the
@@ -106,8 +106,8 @@ agent is working* — never over your own prompt. Rhythm per beat:
 Keep the tool-call section expanded so every call is visible.
 
 **Before recording:** hand-draw four rough boxes on the canvas, unaligned and
-messy — `Weigh`, `Mix`, `Anneal`, `Test`. They have to look like yours. Have the
-CSV and the lab notes in your clipboard manager.
+messy — `Collect`, `Filter`, `Digest`, `Measure`. They have to look like yours.
+Have the CSV and the lab notes in your clipboard manager.
 
 ---
 
@@ -117,26 +117,26 @@ CSV and the lab notes in your clipboard manager.
 
 > "Most AI drawing tools hand you a finished picture and step back.
 > This one doesn't step back — it works on my canvas, while I'm on it.
-> I annealed four samples last week. Let me work out which one won."
+> I tested four points on the water network for lead. Let me find the problem."
 
 ---
 
 ### 0:13 – 0:42 · The numbers
 
 **[SPEAK]** *(paste the CSV first)*
-> "Here's hardness for my four samples. Bar chart it, and call out the best one."
+> "Here's lead in micrograms per litre at four sampling points. The safe limit is ten. Bar chart it and flag anything over."
 
 **[NARRATE while draw_chart and annotate land]**
 > "draw_chart. I give it labels and numbers — no coordinates. The page works out
-> the axes and the scale. Then annotate, pointing at the winner.
-> Six hundred degrees. That's the one."
+> the axes and the scale. Then annotate, pointing at the one that matters.
+> Zone 7. Thirty-four, against a limit of ten."
 
 ---
 
 ### 0:42 – 1:02 · A chart I can still edit
 
 **[SPEAK]**
-> "That's the one I care about. Make that bar wider, and turn it green."
+> "That's the one I care about. Make that bar wider, and turn it red."
 
 **[NARRATE]**
 > "This is what an AI-generated image can't do. The chart tool gave back an id
@@ -151,7 +151,7 @@ CSV and the lab notes in your clipboard manager.
 it's obvious *you* did it.
 
 **[SPEAK]**
-> "These are my protocol steps. Turn them into a proper left-to-right flow with arrows, and add a 'Cracked?' check after Anneal."
+> "These are my sampling steps. Turn them into a proper left-to-right protocol with arrows, and add an 'Over limit?' check after Measure that loops back to Collect for a re-sample."
 
 **[NARRATE while it works]**
 > "Watch the first call — get_selection. I picked those boxes with my mouse, and
@@ -164,19 +164,19 @@ it's obvious *you* did it.
 
 ---
 
-### 1:42 – 2:08 · Planning next week's run
+### 1:42 – 2:08 · Planning the re-test
 
 **[SPEAK]**
-> "Duplicate that protocol underneath. The copy is next week's run — six hundred degrees with a slow cool. Colour the changed steps green."
+> "Duplicate that protocol underneath. The copy is the re-sampling run for Zone 7 — add a field blank and a duplicate sample. Colour the new steps green."
 
 **[NARRATE]**
 > "duplicate_elements. It brings the labels and the arrows across, mints fresh
 > ids, and re-binds the arrows to the copy — so the two are independent. Now
-> I've got this week's protocol and next week's side by side, and I can change
-> one without touching the other."
+> I've got the standard protocol and the re-test protocol side by side, and I
+> can change one without touching the other."
 
-*Fallback: if it only duplicates and stops, follow up with "now change the
-Anneal step in the copy to 600 degrees, slow cool, and colour it green."
+*Fallback: if it only duplicates and stops, follow up with "now add a field
+blank and a duplicate sample step to the copy, and colour them green."
 Much cheaper than a re-take.*
 
 ---
@@ -184,13 +184,13 @@ Much cheaper than a re-take.*
 ### 2:08 – 2:32 · Writing it up
 
 **[SPEAK]** *(paste the lab notes)*
-> "Here are my lab notes. Map them onto the canvas as a board."
+> "Here are my notes from the run. Map them onto the canvas as a board."
 
 **[NARRATE]**
-> "One call to draw_board — the run timeline, the protocol, the results table,
-> each panel drawn by its own tool. And every tool caps at forty nodes: ask for
-> one giant diagram of a whole document and it refuses, and tells the agent to
-> split it into panels instead. That's what keeps it readable."
+> "One call to draw_board — the sampling timeline, the protocol, the results
+> table, each panel drawn by its own tool. And every tool caps at forty nodes:
+> ask for one giant diagram of a whole document and it refuses, and tells the
+> agent to split it into panels instead. That's what keeps it readable."
 
 ---
 
@@ -228,34 +228,38 @@ this is a WebMCP project and not a chatbot with a render button.
 
 ## Paste-ready assets
 
-**CSV for the chart demo** — one sample clearly peaks, so "make that bar wider
-and green" is visually unmistakable:
+**CSV for the chart demo** — one site is far over the limit, so "make that bar
+wider and red" is unmistakable, and red actually means *danger* rather than just
+*highlighted*:
 
 ```
-Sample,Hardness
-A-400C,210
-B-500C,265
-C-600C,340
-D-700C,190
+Site,Lead
+Intake,3
+Reservoir,4
+Zone 3,7
+Zone 7,34
 ```
+
+Safe limit is 10 ug/L, so Zone 7 is over three times it.
 
 **Lab notes for the board beat** — written so the agent has a timeline, a
 protocol and a results table to split across panels:
 
 ```
-Annealing study, week 3.
+Lead sampling, network survey, week 3.
 
-Runs. Samples were weighed and mixed on 18 August. A-400 and B-500 were
-annealed on 19 August, C-600 and D-700 on 20 August. Hardness testing was
-done on 21 August, after all samples had cooled overnight.
+Sampling. Intake and Reservoir were sampled on 18 August, Zone 3 and Zone 7 on
+19 August. All samples were filtered on site and acid-preserved. Digestion was
+done on 20 August, ICP-MS measurement on 21 August.
 
-Procedure. Weigh, mix, anneal for two hours at the target temperature, air
-cool, then check for surface cracking before testing. Cracked samples are
-remixed and re-run.
+Protocol. Collect 500 mL at the tap after a two-minute flush, filter to 0.45
+micron, acid digest, then measure by ICP-MS. Anything over the 10 ug/L limit is
+re-sampled with a field blank before it is reported.
 
-Results. Hardness in HV: A-400 gave 210, B-500 gave 265, C-600 gave 340,
-D-700 gave 190. D-700 showed visible cracking on two of three samples.
+Results. Lead in ug/L: Intake 3, Reservoir 4, Zone 3 gave 7, Zone 7 gave 34.
+Zone 7 is over three times the limit. Zone 3 is within limit but has risen from
+4 in the previous survey.
 
-Next. Repeat C-600 with a slow furnace cool instead of air cooling, to see
-whether hardness holds without the cracking seen at 700.
+Next. Re-sample Zone 7 with a field blank and a duplicate, and pull the pipe
+material records for that zone before reporting.
 ```

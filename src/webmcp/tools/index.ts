@@ -7,6 +7,10 @@ import { drawChart } from "./charts";
 import { drawTable } from "./tables";
 import { arrange } from "./layout";
 import { annotate } from "./annotate";
+import { drawHierarchy } from "./hierarchy";
+import { drawGraph } from "./graph";
+import { drawTimeline } from "./timeline";
+import { drawBoard } from "./board";
 
 export const allTools: ToolDef[] = [
   // read
@@ -24,6 +28,10 @@ export const allTools: ToolDef[] = [
   drawFlowchart,
   drawChart,
   drawTable,
+  drawHierarchy,
+  drawGraph,
+  drawTimeline,
+  drawBoard,
   // layout & emphasis
   arrange,
   annotate,

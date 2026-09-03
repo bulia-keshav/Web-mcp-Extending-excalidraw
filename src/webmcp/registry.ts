@@ -4,13 +4,44 @@ import * as actionStack from "./actionStack";
 
 const registered = new Map<string, ToolDef>();
 
-/** Tracks what the currently-executing tool created/changed, for undo. */
-let capture: { created: string[]; patched: Array<{ id: string; before: Record<string, unknown> }>; removed: string[] } | null = null;
+type Capture = {
+  created: string[];
+  patched: Array<{ id: string; before: Record<string, unknown> }>;
+  removed: string[];
+};
 
-export function noteCreated(ids: string[]) { capture?.created.push(...ids); }
-export function noteRemoved(ids: string[]) { capture?.removed.push(...ids); }
+/**
+ * Undo capture is a STACK, not a single slot: draw_board executes other tools
+ * through invoke(), so captures nest. With one shared slot the inner call
+ * cleared it and the outer call crashed reading its own results.
+ *
+ * Popping merges a child's changes into its parent, so undoing a board undoes
+ * every panel it drew, while each panel also remains individually undoable.
+ */
+const captureStack: Capture[] = [];
+
+const top = () => captureStack[captureStack.length - 1];
+
+function beginCapture() {
+  captureStack.push({ created: [], patched: [], removed: [] });
+}
+
+function endCapture(): Capture {
+  const frame = captureStack.pop() ?? { created: [], patched: [], removed: [] };
+  const parent = top();
+  if (parent) {
+    parent.created.push(...frame.created);
+    parent.patched.push(...frame.patched);
+    parent.removed.push(...frame.removed);
+  }
+  return frame;
+}
+
+export function noteCreated(ids: string[]) { top()?.created.push(...ids); }
+export function noteRemoved(ids: string[]) { top()?.removed.push(...ids); }
 export function noteBeforePatch(ids: string[]) {
-  if (capture) capture.patched.push(...actionStack.snapshotFor(ids));
+  const frame = top();
+  if (frame) frame.patched.push(...actionStack.snapshotFor(ids));
 }
 
 function summarize(result: ToolResult): string {
@@ -43,7 +74,7 @@ function wrap(tool: ToolDef) {
       return result;
     }
 
-    capture = { created: [], patched: [], removed: [] };
+    beginCapture();
     let result: ToolResult;
     try {
       result = await tool.execute(parsed.data);
@@ -55,8 +86,7 @@ function wrap(tool: ToolDef) {
       };
     }
 
-    const taken = capture;
-    capture = null;
+    const taken = endCapture();
 
     actionStack.push({
       tool: tool.name,

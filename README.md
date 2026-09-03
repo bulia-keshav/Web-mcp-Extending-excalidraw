@@ -2,7 +2,7 @@
 
 **A whiteboard that gets better when a human and an agent draw on it together.**
 
-An [Excalidraw](https://excalidraw.com) canvas that exposes **23 WebMCP tools**, so an agent
+An [Excalidraw](https://excalidraw.com) canvas that exposes **24 WebMCP tools**, so an agent
 in a WebMCP-capable browser can co-draw with you: redraw a paper sketch, turn a CSV into a
 chart, build a flowchart from a description, map a whole thesis chapter, or tidy up what you
 already drew.
@@ -36,6 +36,11 @@ follow.
 ---
 
 ## Tools
+
+### Orientation
+| Tool | What it does |
+|---|---|
+| `how_to_draw_here` | The agent's briefing: which tool to reach for, how placement works, the node caps, and that it cannot see the canvas |
 
 ### Reading the canvas
 | Tool | What it does |

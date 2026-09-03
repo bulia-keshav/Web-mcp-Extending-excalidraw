@@ -1,4 +1,5 @@
 import type { ToolDef } from "../types";
+import { howToDraw } from "./guide";
 import { getScene, getSelection, getViewport, findElements } from "./inspect";
 import { addElements, updateElements, deleteElements, restyle, focusOn } from "./elements";
 import { undoAgentStep, clearCanvas } from "./session";
@@ -15,6 +16,8 @@ import { placeImage, capturePhoto } from "./images";
 import { exportPng } from "./export";
 
 export const allTools: ToolDef[] = [
+  // orientation — listed first so it is the most prominent tool
+  howToDraw,
   // read
   getScene,
   getSelection,

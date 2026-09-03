@@ -91,73 +91,72 @@ npm package; no fork.
 
 ---
 
-## VIDEO SCRIPT — one story, voice-driven, target 2:55
+## VIDEO SCRIPT — one story, voice-driven, target 2:50
 
-**The story:** our nightly data pipeline started failing. I work out where, I
-diagram the system, I design a fix, and I write it up — with the agent on the
-same canvas the whole way. Nothing is a disconnected demo; each beat uses what
+**The story:** I annealed four samples at four temperatures and measured
+hardness. Which one won, why, and what do I run next week. Every beat uses what
 the last one produced.
 
 **Why voice changes the structure:** you speak the prompts with ChatGPT's mic,
-so the prompt itself costs airtime. The narration below is written to fill the
-gap *while the agent is working* — never to talk over your own prompt. Rhythm:
+so the prompt itself costs airtime. The narration below fills the gap *while the
+agent is working* — never over your own prompt. Rhythm per beat:
 
 > **[SPEAK]** the prompt → **[NARRATE]** over the tool calls landing → next beat
 
-Keep the tool-call section expanded so every call is visible on screen.
+Keep the tool-call section expanded so every call is visible.
 
-**Before recording:** hand-draw four rough boxes on the canvas, unaligned —
-`Ingest`, `Validate`, `Retry`, `Load`. Leave them messy; they have to look like
-yours. Have the CSV and the write-up in your clipboard manager.
+**Before recording:** hand-draw four rough boxes on the canvas, unaligned and
+messy — `Weigh`, `Mix`, `Anneal`, `Test`. They have to look like yours. Have the
+CSV and the lab notes in your clipboard manager.
 
 ---
 
-### 0:00 – 0:14 · Open
+### 0:00 – 0:13 · Open
 
-*On screen: your four messy hand-drawn boxes, nothing else.*
+*On screen: your four messy hand-drawn boxes.*
 
 > "Most AI drawing tools hand you a finished picture and step back.
 > This one doesn't step back — it works on my canvas, while I'm on it.
-> Our nightly pipeline started failing last week. Let me actually work that out."
+> I annealed four samples last week. Let me work out which one won."
 
 ---
 
-### 0:14 – 0:44 · The numbers
+### 0:13 – 0:42 · The numbers
 
 **[SPEAK]** *(paste the CSV first)*
-> "Here are last quarter's pipeline failures by stage. Bar chart it, and call out the worst one."
+> "Here's hardness for my four samples. Bar chart it, and call out the best one."
 
 **[NARRATE while draw_chart and annotate land]**
-> "draw_chart. I hand it labels and numbers — no coordinates. The page computes
-> the axes and the scale. Then annotate, pointing at the stage that's hurting.
-> Load. That's where we're bleeding."
+> "draw_chart. I give it labels and numbers — no coordinates. The page works out
+> the axes and the scale. Then annotate, pointing at the winner.
+> Six hundred degrees. That's the one."
 
 ---
 
-### 0:44 – 1:04 · It's a live object, not a render
+### 0:42 – 1:02 · A chart I can still edit
 
 **[SPEAK]**
-> "That's the one I care about. Make that bar wider, and turn it red."
+> "That's the one I care about. Make that bar wider, and turn it green."
 
 **[NARRATE]**
-> "This is what a generated image can't do. The chart tool handed back an id for
-> every single bar, so it can reach into the exact one I mean. That chart is
-> still an object I can edit — not a picture of a chart."
+> "This is what an AI-generated image can't do. The chart tool gave back an id
+> for every bar, so it can reach into the exact one I mean. It's still an object
+> on my canvas — not a picture of a chart."
 
 ---
 
-### 1:04 – 1:44 · My sketch becomes the real thing  ← the beat that matters
+### 1:02 – 1:42 · My sketch becomes the real protocol  ← the beat that matters
 
 **Do this on camera:** rubber-band select your four hand-drawn boxes. Pause so
-it is obvious *you* did it.
+it's obvious *you* did it.
 
 **[SPEAK]**
-> "These are the pipeline stages I sketched. Turn them into a proper left-to-right flow with arrows, and make Retry a decision diamond."
+> "These are my protocol steps. Turn them into a proper left-to-right flow with arrows, and add a 'Cracked?' check after Anneal."
 
 **[NARRATE while it works]**
-> "Watch the first call — get_selection. I picked those boxes with my mouse and
+> "Watch the first call — get_selection. I picked those boxes with my mouse, and
 > it read my selection straight out of the app's state. I never told it which
-> boxes I meant. That's the whole idea — we're looking at the same thing."
+> boxes I meant. That's the whole idea: we're looking at the same thing."
 
 **Now drag one box across the canvas.**
 
@@ -165,37 +164,37 @@ it is obvious *you* did it.
 
 ---
 
-### 1:44 – 2:12 · Designing the fix
+### 1:42 – 2:08 · Planning next week's run
 
 **[SPEAK]**
-> "Duplicate that flow underneath. Make the copy my proposed fix — add a dead-letter queue after Retry, and colour the new parts green."
+> "Duplicate that protocol underneath. The copy is next week's run — six hundred degrees with a slow cool. Colour the changed steps green."
 
 **[NARRATE]**
-> "duplicate_elements. It brings the labels and the arrows, mints fresh ids, and
-> re-binds the arrows to the copy — so the two are independent. Now I have the
-> system as it is, and the system as I want it, side by side, and I can take the
-> second one apart without touching the first."
+> "duplicate_elements. It brings the labels and the arrows across, mints fresh
+> ids, and re-binds the arrows to the copy — so the two are independent. Now
+> I've got this week's protocol and next week's side by side, and I can change
+> one without touching the other."
 
-*Fallback: if it only duplicates and stops, follow up with "now add a
-dead-letter queue box after Retry in the copy and colour it green." Much cheaper
-than a re-take.*
+*Fallback: if it only duplicates and stops, follow up with "now change the
+Anneal step in the copy to 600 degrees, slow cool, and colour it green."
+Much cheaper than a re-take.*
 
 ---
 
-### 2:12 – 2:36 · Handing it off
+### 2:08 – 2:32 · Writing it up
 
-**[SPEAK]** *(paste the write-up)*
-> "Here's my incident write-up. Map it onto the canvas as a board."
+**[SPEAK]** *(paste the lab notes)*
+> "Here are my lab notes. Map them onto the canvas as a board."
 
 **[NARRATE]**
-> "One call to draw_board — the incident timeline, the flow, the numbers, each
-> panel drawn by its own tool. And every tool caps at forty nodes: ask for one
-> giant diagram of a whole document and it refuses, and tells the agent to split
-> it into panels instead. That constraint is what keeps this readable."
+> "One call to draw_board — the run timeline, the protocol, the results table,
+> each panel drawn by its own tool. And every tool caps at forty nodes: ask for
+> one giant diagram of a whole document and it refuses, and tells the agent to
+> split it into panels instead. That's what keeps it readable."
 
 ---
 
-### 2:36 – 2:55 · Safety, and how it is built
+### 2:32 – 2:50 · Safety, and how it's built
 
 **Click the Agent button, top-right.**
 
@@ -203,20 +202,20 @@ than a re-take.*
 > reverses only the agent's work, never mine. Writes are append-only, so it
 > can't overwrite something I'm halfway through drawing.
 > Twenty-five tools, registered with document.modelContext.registerTool in the
-> top-level page. Each is a single zod schema that both validates the input and
+> top-level page. Each is one zod schema that both validates the input and
 > generates the schema ChatGPT sees, so the two can't drift apart.
-> The agent brings the judgement. The page keeps the geometry. It's open
-> source — link's below."
+> The agent brings the judgement. The page keeps the geometry. Open source,
+> link's below."
 
 ---
 
 ### If you run long
 Cut in this order — least load-bearing first:
 1. The node-cap sentence in the board beat (−8s)
-2. The box-drag at the end of the sketch beat (−6s)
+2. The box-drag at the end of the protocol beat (−6s)
 3. The "append-only" line in the close (−5s)
 
-**Never cut** the get_selection beat at 1:04. It is the entire argument for why
+**Never cut** the get_selection beat at 1:02. It is the entire argument for why
 this is a WebMCP project and not a chatbot with a render button.
 
 ### Filming notes
@@ -229,33 +228,34 @@ this is a WebMCP project and not a chatbot with a render button.
 
 ## Paste-ready assets
 
-**CSV for the chart demo** — one stage dominates, so "make that bar wider and
-red" is visually unmistakable:
+**CSV for the chart demo** — one sample clearly peaks, so "make that bar wider
+and green" is visually unmistakable:
 
 ```
-Stage,Failures
-Ingest,12
-Validate,19
-Transform,7
-Load,41
+Sample,Hardness
+A-400C,210
+B-500C,265
+C-600C,340
+D-700C,190
 ```
 
-**Incident write-up for the board beat** — written so the agent has a timeline,
-a flow and a table to split across panels:
+**Lab notes for the board beat** — written so the agent has a timeline, a
+protocol and a results table to split across panels:
 
 ```
-Incident: nightly pipeline failures, Q3.
+Annealing study, week 3.
 
-Timeline. Failures first appeared on 12 August after the schema change. They
-were intermittent for a week, then constant from 19 August. We noticed on
-23 August when the morning report came out empty. Mitigation shipped 26 August.
+Runs. Samples were weighed and mixed on 18 August. A-400 and B-500 were
+annealed on 19 August, C-600 and D-700 on 20 August. Hardness testing was
+done on 21 August, after all samples had cooled overnight.
 
-Cause. The Load stage retries three times and then drops the record silently.
-Under the new schema roughly one row in forty fails validation downstream, so
-Load was discarding them with no trace.
+Procedure. Weigh, mix, anneal for two hours at the target temperature, air
+cool, then check for surface cracking before testing. Cracked samples are
+remixed and re-run.
 
-Stages and failure counts: Ingest 12, Validate 19, Transform 7, Load 41.
+Results. Hardness in HV: A-400 gave 210, B-500 gave 265, C-600 gave 340,
+D-700 gave 190. D-700 showed visible cracking on two of three samples.
 
-Proposed fix. Add a dead-letter queue after Retry so dropped records are
-captured rather than lost, and alert when the queue is non-empty.
+Next. Repeat C-600 with a slow furnace cool instead of air cooling, to see
+whether hardness holds without the cracking seen at 700.
 ```

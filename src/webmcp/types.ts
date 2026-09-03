@@ -44,6 +44,7 @@ declare global {
       describe: (name?: string) => unknown;
       call: (name: string, args?: unknown) => Promise<ToolResult>;
       mode: () => "native" | "shim" | "none";
+      raw: () => unknown;
     };
   }
 }

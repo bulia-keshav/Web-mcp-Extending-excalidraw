@@ -243,7 +243,16 @@ Example: {"ids":["abc123"]}`,
         appState: { selectedElementIds: Object.fromEntries(targets.map((el) => [el.id, true])) },
       });
     }
-    api.scrollToContent(targets, { fitToContent: true, animate: true });
+    // fitToViewport centres the content and leaves a margin; fitToContent
+    // parked the drawing in the top-left corner instead.
+    // animate:false is deliberate — the animated variant was reliably left
+    // stranded part-way through, landing on an arbitrary scroll position.
+    api.scrollToContent(targets, {
+      fitToViewport: true,
+      viewportZoomFactor: 0.7,
+      animate: false,
+      maxZoom: 1.5,
+    });
     return { ok: true, focused: targets.map((el) => el.id) };
   },
 });

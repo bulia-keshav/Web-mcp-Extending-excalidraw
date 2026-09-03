@@ -1,5 +1,6 @@
 import { invoke, toolNames, getTool } from "../webmcp/registry";
 import { currentMode } from "../webmcp/detect";
+import { getAPI } from "../excalidraw/apiRef";
 
 /**
  * Ships in production ON PURPOSE.
@@ -25,6 +26,8 @@ export function installHarness() {
       return { name: t.name, description: t.description, inputSchema: t.inputSchema, annotations: t.annotations };
     },
     call: (name: string, args?: unknown) => invoke(name, args ?? {}),
+    // Escape hatch for debugging against the real canvas.
+    raw: () => getAPI(),
   };
 
   console.info(

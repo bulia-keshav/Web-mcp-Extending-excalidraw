@@ -91,11 +91,11 @@ npm package; no fork.
 
 ---
 
-## VIDEO SCRIPT — one story, voice-driven, target 2:50
+## VIDEO SCRIPT — one story, voice-driven, target 2:55
 
-**The story:** I sampled four points on the water network for lead. One is over
-the limit. I find it, diagram the sampling protocol, plan the re-test, and write
-it up. Every beat uses what the last one produced.
+**The story:** I'm model-checking four modules of a bus protocol. One of them
+blows up. I find it, look at its state machine, build the abstraction that will
+tame it, and write the whole thing up. Every beat uses what the last produced.
 
 **Why voice changes the structure:** you speak the prompts with ChatGPT's mic,
 so the prompt itself costs airtime. The narration below fills the gap *while the
@@ -105,96 +105,104 @@ agent is working* — never over your own prompt. Rhythm per beat:
 
 Keep the tool-call section expanded so every call is visible.
 
-**Before recording:** hand-draw four rough boxes on the canvas, unaligned and
-messy — `Collect`, `Filter`, `Digest`, `Measure`. They have to look like yours.
-Have the CSV and the lab notes in your clipboard manager.
+**Before recording:** hand-draw five rough boxes, unaligned and messy —
+`Idle`, `Request`, `Grant`, `Busy`, `Release`. They must look like yours.
+Have both CSVs and the report notes in your clipboard manager.
 
 ---
 
 ### 0:00 – 0:13 · Open
 
-*On screen: your four messy hand-drawn boxes.*
+*On screen: your five messy hand-drawn boxes.*
 
 > "Most AI drawing tools hand you a finished picture and step back.
 > This one doesn't step back — it works on my canvas, while I'm on it.
-> I tested four points on the water network for lead. Let me find the problem."
+> I'm model-checking a bus protocol. One module is blowing up. Let me find it."
 
 ---
 
-### 0:13 – 0:42 · The numbers
+### 0:13 – 0:40 · The simple chart
 
-**[SPEAK]** *(paste the CSV first)*
-> "Here's lead in micrograms per litre at four sampling points. The safe limit is ten. Bar chart it and flag anything over."
+**[SPEAK]** *(paste CSV 1 first)*
+> "Peak states explored per module. Bar chart it and flag the outlier."
 
 **[NARRATE while draw_chart and annotate land]**
-> "draw_chart. I give it labels and numbers — no coordinates. The page works out
-> the axes and the scale. Then annotate, pointing at the one that matters.
-> Zone 7. Thirty-four, against a limit of ten."
+> "draw_chart. Labels and numbers, no coordinates — the page picks the axes and
+> the scale, and formats two point four million as 2.5M on the axis.
+> Scheduler. Fifty times every other module. That's a state explosion."
 
 ---
 
-### 0:42 – 1:02 · A chart I can still edit
+### 0:40 – 1:00 · The harder chart, and it's still editable
 
-**[SPEAK]**
-> "That's the one I care about. Make that bar wider, and turn it red."
+**[SPEAK]** *(paste CSV 2)*
+> "Now plot how the state count grew with search depth, one line per module, and put it beside the bar chart."
 
 **[NARRATE]**
-> "This is what an AI-generated image can't do. The chart tool gave back an id
-> for every bar, so it can reach into the exact one I mean. It's still an object
-> on my canvas — not a picture of a chart."
+> "Same tool, line mode, three series with a legend. And there's the curve —
+> flat for two modules, exponential for Scheduler."
+
+**[SPEAK]**
+> "Make the Scheduler bar wider and turn it red."
+
+> "It handed back an id for every bar and every point, so it can reach the exact
+> one I mean. That chart is still an object on my canvas — not a picture of one."
 
 ---
 
-### 1:02 – 1:42 · My sketch becomes the real protocol  ← the beat that matters
+### 1:00 – 1:40 · My sketch becomes the state machine  ← the beat that matters
 
-**Do this on camera:** rubber-band select your four hand-drawn boxes. Pause so
+**Do this on camera:** rubber-band select your five hand-drawn boxes. Pause so
 it's obvious *you* did it.
 
 **[SPEAK]**
-> "These are my sampling steps. Turn them into a proper left-to-right protocol with arrows, and add an 'Over limit?' check after Measure that loops back to Collect for a re-sample."
+> "These are the states I sketched for Scheduler. Turn them into a proper state machine, left to right, with the transitions labelled — and add a 'Timeout?' branch after Busy that goes back to Request."
 
 **[NARRATE while it works]**
-> "Watch the first call — get_selection. I picked those boxes with my mouse, and
+> "Watch the first call — get_selection. I picked those boxes with my mouse and
 > it read my selection straight out of the app's state. I never told it which
 > boxes I meant. That's the whole idea: we're looking at the same thing."
 
-**Now drag one box across the canvas.**
+**Now drag one state across the canvas.**
 
-> "And the arrows follow. Real bindings, not lines drawn at coordinates."
+> "And the transitions follow. Real bindings, not lines drawn at coordinates."
 
 ---
 
-### 1:42 – 2:08 · Planning the re-test
+### 1:40 – 2:12 · The abstraction — my design, its hands
 
 **[SPEAK]**
-> "Duplicate that protocol underneath. The copy is the re-sampling run for Zone 7 — add a field blank and a duplicate sample. Colour the new steps green."
+> "Duplicate that state machine below it."
 
 **[NARRATE]**
-> "duplicate_elements. It brings the labels and the arrows across, mints fresh
-> ids, and re-binds the arrows to the copy — so the two are independent. Now
-> I've got the standard protocol and the re-test protocol side by side, and I
-> can change one without touching the other."
+> "duplicate_elements — labels, transitions, fresh ids, and the arrows re-bound
+> to the copy, so the two are independent."
 
-*Fallback: if it only duplicates and stops, follow up with "now add a field
-blank and a duplicate sample step to the copy, and colour them green."
-Much cheaper than a re-take.*
+**[SPEAK]**
+> "In the copy, add two more states vertically below Busy — 'Backoff' and 'Merged retry' — and colour them green."
+
+**[NARRATE — this is the line that matters]**
+> "I'm not asking it to design the abstraction. I've decided what merges and
+> what doesn't — that's the part that needs a person. It's doing the drawing I'd
+> otherwise be doing by hand. This is my canvas, and the agent is a tool on it,
+> not the architect of it."
 
 ---
 
-### 2:08 – 2:32 · Writing it up
+### 2:12 – 2:36 · Writing it up
 
-**[SPEAK]** *(paste the lab notes)*
+**[SPEAK]** *(paste the report notes)*
 > "Here are my notes from the run. Map them onto the canvas as a board."
 
 **[NARRATE]**
-> "One call to draw_board — the sampling timeline, the protocol, the results
+> "One call to draw_board — the run timeline, the state machine, the results
 > table, each panel drawn by its own tool. And every tool caps at forty nodes:
 > ask for one giant diagram of a whole document and it refuses, and tells the
-> agent to split it into panels instead. That's what keeps it readable."
+> agent to split it into panels. That's what keeps it readable."
 
 ---
 
-### 2:32 – 2:50 · Safety, and how it's built
+### 2:36 – 2:55 · Safety, and how it's built
 
 **Click the Agent button, top-right.**
 
@@ -204,19 +212,19 @@ Much cheaper than a re-take.*
 > Twenty-five tools, registered with document.modelContext.registerTool in the
 > top-level page. Each is one zod schema that both validates the input and
 > generates the schema ChatGPT sees, so the two can't drift apart.
-> The agent brings the judgement. The page keeps the geometry. Open source,
-> link's below."
+> The agent brings the drawing. The judgement stays mine. Open source, link's
+> below."
 
 ---
 
 ### If you run long
 Cut in this order — least load-bearing first:
 1. The node-cap sentence in the board beat (−8s)
-2. The box-drag at the end of the protocol beat (−6s)
+2. The state-drag at the end of the state-machine beat (−6s)
 3. The "append-only" line in the close (−5s)
 
-**Never cut** the get_selection beat at 1:02. It is the entire argument for why
-this is a WebMCP project and not a chatbot with a render button.
+**Never cut** the get_selection beat at 1:00, or the "my canvas, not the
+architect" line at 1:40. Those two are the argument.
 
 ### Filming notes
 - One continuous take if you can. Cuts cost more time than they save.
@@ -228,38 +236,48 @@ this is a WebMCP project and not a chatbot with a render button.
 
 ## Paste-ready assets
 
-**CSV for the chart demo** — one site is far over the limit, so "make that bar
-wider and red" is unmistakable, and red actually means *danger* rather than just
-*highlighted*:
+**CSV 1 — the bar chart.** One module is ~50x the others, and 2,411,930 lands
+on a 2.5M axis so the bar fills the plot:
 
 ```
-Site,Lead
-Intake,3
-Reservoir,4
-Zone 3,7
-Zone 7,34
+Module,States
+Arbiter,12480
+Cache,48120
+Bus,31004
+Scheduler,2411930
 ```
 
-Safe limit is 10 ug/L, so Zone 7 is over three times it.
-
-**Lab notes for the board beat** — written so the agent has a timeline, a
-protocol and a results table to split across panels:
+**CSV 2 — the line chart.** Three series, and Scheduler's curve goes exponential
+while the others stay flat. This is what state explosion looks like:
 
 ```
-Lead sampling, network survey, week 3.
+Depth,Arbiter,Cache,Scheduler
+2,120,300,900
+4,460,1400,8200
+6,1100,5200,61000
+8,3200,14000,340000
+10,7400,31000,1120000
+12,12480,48120,2411930
+```
 
-Sampling. Intake and Reservoir were sampled on 18 August, Zone 3 and Zone 7 on
-19 August. All samples were filtered on site and acid-preserved. Digestion was
-done on 20 August, ICP-MS measurement on 21 August.
+**Report notes for the board beat** — written so the agent has a timeline, a
+state machine and a results table to split across panels:
 
-Protocol. Collect 500 mL at the tap after a two-minute flush, filter to 0.45
-micron, acid digest, then measure by ICP-MS. Anything over the 10 ug/L limit is
-re-sampled with a field blank before it is reported.
+```
+Verification run, bus protocol, week 3.
 
-Results. Lead in ug/L: Intake 3, Reservoir 4, Zone 3 gave 7, Zone 7 gave 34.
-Zone 7 is over three times the limit. Zone 3 is within limit but has risen from
-4 in the previous survey.
+Runs. Arbiter and Cache were checked on 18 August and both completed in under
+a minute. Bus completed on 19 August. Scheduler was started on 19 August, hit
+the memory ceiling after eleven hours, and was killed on 20 August at depth 12.
 
-Next. Re-sample Zone 7 with a field blank and a duplicate, and pull the pipe
-material records for that zone before reporting.
+Model. Scheduler cycles Idle, Request, Grant, Busy, Release. On timeout it
+returns to Request and retries, and each retry carries its own counter, so the
+retry counters multiply out across the state space.
+
+Results. Peak states explored: Arbiter 12,480, Cache 48,120, Bus 31,004,
+Scheduler 2,411,930. All safety properties held on the three modules that
+completed. Scheduler is inconclusive.
+
+Next. Merge the retry states behind a single backoff state so the counters
+collapse, then re-run Scheduler at depth 12 and check the safety properties.
 ```

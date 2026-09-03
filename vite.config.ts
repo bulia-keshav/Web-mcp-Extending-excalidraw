@@ -2,6 +2,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
+  server: {
+    port: process.env.PORT ? Number(process.env.PORT) : 5173,
+  },
   plugins: [react()],
   define: {
     // Excalidraw's bundle references this; without it the prod build throws

@@ -19,11 +19,11 @@ const APP_STATE_KEYS = [
   "currentItemRoughness",
   "gridSize",
   "theme",
-  "zoom",
-  "scrollX",
-  "scrollY",
   "name",
 ] as const;
+// Deliberately NOT persisting zoom/scrollX/scrollY: restoring them fights
+// `scrollToContent: true` on load, which leaves the restored drawing parked
+// off-screen. Fitting to content on open is the more predictable behaviour.
 
 export function loadScene(): ExcalidrawInitialDataState | null {
   try {

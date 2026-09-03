@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { subscribe, undoById, type AgentAction } from "../webmcp/actionStack";
+import { subscribe, undoById, isRevertible, type AgentAction } from "../webmcp/actionStack";
 import type { WebMCPMode } from "../webmcp/detect";
 import "./AgentActivityPanel.css";
 
@@ -50,7 +50,7 @@ export default function AgentActivityPanel({
                 <time>{new Date(a.at).toLocaleTimeString()}</time>
               </div>
               <div className="agent-panel__summary">{a.summary}</div>
-              {a.ok && !a.undone && (a.created.length + a.patched.length + a.removed.length > 0) && (
+              {isRevertible(a) && (
                 <button className="agent-panel__undo" onClick={() => undoById(a.id)}>
                   Undo this step
                 </button>

@@ -78,12 +78,21 @@ function revert(action: AgentAction) {
   action.undone = true;
 }
 
-/** Undo the most recent N agent actions that have not already been undone. */
+/** An action is only undoable if it actually changed the scene. */
+export function isRevertible(a: AgentAction): boolean {
+  return a.ok && !a.undone && (a.created.length + a.patched.length + a.removed.length) > 0;
+}
+
+/**
+ * Undo the most recent N *scene-changing* agent actions. Reads like get_scene
+ * sit in the activity log but must never consume an undo step, or "undo that"
+ * silently burns itself on a lookup and the human sees nothing happen.
+ */
 export function undo(steps = 1): { undone: string[] } {
   const undone: string[] = [];
   for (let i = stack.length - 1; i >= 0 && undone.length < steps; i--) {
     const a = stack[i];
-    if (a.undone || !a.ok) continue;
+    if (!isRevertible(a)) continue;
     revert(a);
     undone.push(a.tool);
   }
@@ -94,7 +103,7 @@ export function undo(steps = 1): { undone: string[] } {
 /** Undo one specific action by id — powers the per-call button in the panel. */
 export function undoById(id: string): boolean {
   const a = stack.find((x) => x.id === id);
-  if (!a || a.undone || !a.ok) return false;
+  if (!a || !isRevertible(a)) return false;
   revert(a);
   emit();
   return true;

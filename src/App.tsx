@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Excalidraw } from "@excalidraw/excalidraw";
 import type { ExcalidrawImperativeAPI, AppState, BinaryFiles } from "@excalidraw/excalidraw/types";
 import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
@@ -17,7 +17,6 @@ export default function App() {
   const [api, setApi] = useState<ExcalidrawImperativeAPI | null>(null);
   const [mode, setMode] = useState(currentMode());
   const [panelOpen, setPanelOpen] = useState(false);
-  const registered = useRef(false);
 
   const onApi = useCallback((next: ExcalidrawImperativeAPI) => {
     setExcalidrawAPI(next);
@@ -25,9 +24,12 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!api || registered.current) return;
-    registered.current = true;
+    if (!api) return;
 
+    // Registration and teardown must stay symmetric. A "register once" guard
+    // here looks harmless but breaks under StrictMode's double-invoke: the
+    // first cleanup clears the registry and the guard blocks re-registration,
+    // leaving the page advertising zero tools.
     const controller = new AbortController();
     registerAll(allTools, controller.signal);
     installHarness();

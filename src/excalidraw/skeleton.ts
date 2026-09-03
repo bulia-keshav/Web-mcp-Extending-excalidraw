@@ -129,6 +129,13 @@ export function buildFromSkeletons(specs: SkeletonSpec[]): BuildResult {
         y: span.y,
         width: span.width,
         height: span.height,
+        // Explicit points are required for exact geometry: Excalidraw treats
+        // width:0 as "unset" and substitutes a default of 100, which turns a
+        // vertical axis line into a diagonal.
+        points: [
+          [0, 0],
+          [span.width, span.height],
+        ],
         ...(startId ? { start: { id: startId } } : {}),
         ...(endId ? { end: { id: endId } } : {}),
         // Bound label on an arrow must go through `label`, not a text element.
@@ -254,5 +261,24 @@ function geometryBetween(
     y: s.y ?? 0,
     width: s.width ?? 100,
     height: s.height ?? 0,
+  };
+}
+
+/**
+ * Tag every element of a composite (a chart, a table, a flowchart) with a
+ * shared group id. Two payoffs: the human can drag the whole diagram as one
+ * unit, and `placement: next_to` can resolve the diagram's real extent instead
+ * of the bounding box of whichever single element the agent happened to name.
+ */
+export function groupElements(
+  elements: ExcalidrawElement[],
+  groupId = newId("grp"),
+): { elements: ExcalidrawElement[]; groupId: string } {
+  return {
+    groupId,
+    elements: elements.map((el) => ({
+      ...el,
+      groupIds: [...(el.groupIds ?? []), groupId],
+    })) as ExcalidrawElement[],
   };
 }

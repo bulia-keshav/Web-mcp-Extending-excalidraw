@@ -3,6 +3,10 @@ import { getScene, getSelection, getViewport, findElements } from "./inspect";
 import { addElements, updateElements, deleteElements, restyle, focusOn } from "./elements";
 import { undoAgentStep, clearCanvas } from "./session";
 import { drawFlowchart } from "./flowchart";
+import { drawChart } from "./charts";
+import { drawTable } from "./tables";
+import { arrange } from "./layout";
+import { annotate } from "./annotate";
 
 export const allTools: ToolDef[] = [
   // read
@@ -18,6 +22,11 @@ export const allTools: ToolDef[] = [
   focusOn,
   // diagrams
   drawFlowchart,
+  drawChart,
+  drawTable,
+  // layout & emphasis
+  arrange,
+  annotate,
   // session
   undoAgentStep,
   clearCanvas,

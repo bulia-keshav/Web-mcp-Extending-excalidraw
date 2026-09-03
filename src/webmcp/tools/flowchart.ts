@@ -1,6 +1,7 @@
 import { defineTool, z, placementSchema } from "../defineTool";
 import { renderMermaid, shapeSyntax, safeNodeId, escapeLabel, type MermaidShape } from "../../excalidraw/mermaid";
 import { appendElements } from "../../excalidraw/sceneOps";
+import { groupElements } from "../../excalidraw/skeleton";
 import { resolvePlacement, type Placement } from "../../excalidraw/placement";
 import { noteCreated } from "../registry";
 import { NODE_CAP } from "../limits";
@@ -95,8 +96,9 @@ Example: {"nodes":[{"id":"s","label":"Submit","shape":"stadium"},{"id":"d","labe
     const origin = resolvePlacement(placement as Placement | undefined, render.width, render.height);
     const placed = await renderMermaid(text, origin);
 
-    appendElements(placed.elements);
-    noteCreated(placed.elements.map((el) => el.id));
+    const { elements: grouped, groupId } = groupElements(placed.elements);
+    appendElements(grouped);
+    noteCreated(grouped.map((el) => el.id));
 
     // Map the agent's own node ids onto real element ids for follow-up calls.
     const nodeIds: Record<string, string> = {};
@@ -106,7 +108,9 @@ Example: {"nodes":[{"id":"s","label":"Submit","shape":"stadium"},{"id":"d","labe
 
     return {
       ok: true,
-      created: placed.elements.map((el) => el.id),
+      created: grouped.map((el) => el.id),
+      groupId,
+      refId: grouped[0]?.id,
       nodeIds: Object.keys(nodeIds).length ? nodeIds : placed.nodeIds,
       placedAt: origin,
       size: { width: Math.round(render.width), height: Math.round(render.height) },

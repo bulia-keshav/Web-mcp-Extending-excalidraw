@@ -43,6 +43,15 @@ export function boundsOf(elements: readonly ExcalidrawElement[]): Rect | null {
 
 const DEFAULT_GAP = 80;
 
+/** Bounds of every element sharing a group with `ref`, or null if ungrouped. */
+function groupBoundsFor(ref: ExcalidrawElement): Rect | null {
+  const groups = ref.groupIds ?? [];
+  if (!groups.length) return null;
+  const set = new Set(groups);
+  const siblings = getLiveElements().filter((el) => (el.groupIds ?? []).some((g) => set.has(g)));
+  return siblings.length ? boundsOf(siblings) : null;
+}
+
 /**
  * Returns the top-left corner at which content of the given size should be
  * placed. Composite tools build at origin (0,0) then translate by this.
@@ -65,15 +74,20 @@ export function resolvePlacement(
         // placed where the human is looking, and a warning in the result.
         return centerOf(viewportRect(), contentWidth, contentHeight);
       }
+      // Resolve to the whole diagram when the referenced element is part of
+      // one. Agents naturally pass the first id a composite tool returned,
+      // which is often a title label — sizing off that alone drops the new
+      // content straight on top of the existing diagram.
+      const anchor = groupBoundsFor(ref) ?? {
+        x: ref.x, y: ref.y, width: ref.width ?? 0, height: ref.height ?? 0,
+      };
       const gap = p.gap ?? DEFAULT_GAP;
       const side = p.side ?? "right";
-      const rw = ref.width ?? 0;
-      const rh = ref.height ?? 0;
       switch (side) {
-        case "right": return { x: ref.x + rw + gap, y: ref.y };
-        case "left": return { x: ref.x - gap - contentWidth, y: ref.y };
-        case "below": return { x: ref.x, y: ref.y + rh + gap };
-        case "above": return { x: ref.x, y: ref.y - gap - contentHeight };
+        case "right": return { x: anchor.x + anchor.width + gap, y: anchor.y };
+        case "left": return { x: anchor.x - gap - contentWidth, y: anchor.y };
+        case "below": return { x: anchor.x, y: anchor.y + anchor.height + gap };
+        case "above": return { x: anchor.x, y: anchor.y - gap - contentHeight };
       }
       break;
     }

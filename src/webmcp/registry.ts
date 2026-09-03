@@ -4,6 +4,36 @@ import * as actionStack from "./actionStack";
 
 const registered = new Map<string, ToolDef>();
 
+/**
+ * Excalidraw measures text with whatever font is available at the moment the
+ * element is created. On a cold visit its hand-drawn fonts are still loading,
+ * so labels get measured against a fallback, come out too narrow, and render
+ * visibly clipped ("Quarterly revenue" -> "Quarterly reven").
+ *
+ * Gate writes on the fonts actually being ready. Resolved once, then cached.
+ */
+let fontsReady: Promise<void> | null = null;
+
+function ensureFontsReady(): Promise<void> {
+  if (fontsReady) return fontsReady;
+  fontsReady = (async () => {
+    const fonts = (document as Document & { fonts?: FontFaceSet }).fonts;
+    if (!fonts) return;
+    try {
+      // Ask for the faces Excalidraw actually draws with, then wait for the
+      // whole set — `ready` alone resolves early if nothing is pending yet.
+      await Promise.all([
+        fonts.load('20px Excalifont').catch(() => undefined),
+        fonts.load('20px Assistant').catch(() => undefined),
+      ]);
+      await fonts.ready;
+    } catch {
+      // Never block drawing because font loading misbehaved.
+    }
+  })();
+  return fontsReady;
+}
+
 type Capture = {
   created: string[];
   patched: Array<{ id: string; before: Record<string, unknown> }>;
@@ -73,6 +103,9 @@ function wrap(tool: ToolDef) {
       actionStack.push({ tool: tool.name, summary: hint, ok: false, created: [], patched: [], removed: [] });
       return result;
     }
+
+    // Reads do not create text, so they never need to wait.
+    if (tool.annotations?.readOnlyHint !== true) await ensureFontsReady();
 
     beginCapture();
     let result: ToolResult;

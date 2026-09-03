@@ -3,8 +3,9 @@ import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
 import type { BinaryFiles } from "@excalidraw/excalidraw/types";
 import { requireAPI } from "./apiRef";
 
-const DIAMOND_SCALE_X = 1.7;
-const DIAMOND_SCALE_Y = 1.15;
+/** Rough advance width of a glyph as a fraction of font size. */
+const CHAR_WIDTH_RATIO = 0.58;
+const MIN_LABEL_FONT = 10;
 
 export type MermaidShape = "rectangle" | "diamond" | "round" | "stadium" | "circle";
 
@@ -86,19 +87,25 @@ export async function renderMermaid(
       ...(typeof s.y === "number" ? { y: (s.y as number) + dy } : {}),
     };
 
-    // Mermaid sizes a diamond for its own renderer, where the label sits in a
-    // wider usable area than Excalidraw's diamond gives it. Left alone, a word
-    // like "Urgent?" wraps mid-word to "Urge / nt?". Widen the diamond about
-    // its own centre so the label fits on one line.
-    if (moved.type === "diamond" && typeof moved.width === "number" && typeof moved.height === "number") {
-      const w = moved.width as number;
-      const h = moved.height as number;
-      const nw = w * DIAMOND_SCALE_X;
-      const nh = h * DIAMOND_SCALE_Y;
-      moved.width = nw;
-      moved.height = nh;
-      if (typeof moved.x === "number") moved.x = (moved.x as number) - (nw - w) / 2;
-      if (typeof moved.y === "number") moved.y = (moved.y as number) - (nh - h) / 2;
+    // A diamond's usable text area is its inscribed rectangle — about half its
+    // width — so mermaid's sizing leaves "Urgent?" wrapping mid-word to
+    // "Urge / nt?". Shrink the LABEL to fit rather than growing the shape:
+    // mermaid computed every edge endpoint against the original geometry, so
+    // resizing the diamond makes arrows terminate inside it.
+    if (moved.type === "diamond" && typeof moved.width === "number") {
+      const label = moved.label as { text?: string; fontSize?: number } | undefined;
+      if (label?.text) {
+        const usable = (moved.width as number) * 0.5 - 12;
+        const size = label.fontSize ?? 16;
+        const longestWord = label.text.split(/\s+/).reduce((a, b) => (a.length >= b.length ? a : b), "");
+        const estimated = longestWord.length * size * CHAR_WIDTH_RATIO;
+        if (estimated > usable && usable > 0) {
+          moved.label = {
+            ...label,
+            fontSize: Math.max(MIN_LABEL_FONT, Math.floor(size * (usable / estimated))),
+          };
+        }
+      }
     }
 
     return moved;

@@ -8,7 +8,7 @@ import { INK } from "../../excalidraw/palette";
 import { invoke } from "../registry";
 import { PANEL_NODE_CAP } from "../limits";
 
-const GAP = 140;
+const GAP = 110;
 const TITLE_H = 46;
 
 const panelSchema = z.object({

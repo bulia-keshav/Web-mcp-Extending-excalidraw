@@ -120,7 +120,8 @@ is as you wrote it.
 > Hey ChatGPT, can you please take this data and make it into a bar chart?
 
 > That's the draw_chart tool. One call. Four labels, four numbers, no
-> coordinates anywhere. And Scheduler's off the scale — fifty times the others.
+> coordinates anywhere. And Scheduler's off the scale — six times the next
+> worst, and it never even finished.
 
 ---
 

@@ -8,7 +8,7 @@ Model. Scheduler cycles Idle, Request, Grant, Busy, Release. On timeout it
 returns to Request and retries, and each retry carries its own counter, so the
 retry counters multiply out across the state space.
 
-Results. Peak states explored: Arbiter 12,480, Cache 48,120, Bus 31,004,
+Results. Peak states explored: Arbiter 198,400, Cache 402,150, Bus 311,004,
 Scheduler 2,411,930. All safety properties held on the three modules that
 completed. Scheduler is inconclusive.
 

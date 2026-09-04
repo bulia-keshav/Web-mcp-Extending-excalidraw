@@ -32,7 +32,7 @@ Example: {"title":"Study timeline","events":[{"label":"Recruit","detail":"n=120"
 
     const axisLen = horizontal ? STEP_X * (events.length - 1) + 120 : STEP_Y * (events.length - 1) + 100;
     const titleH = title ? 44 : 0;
-    const axisOffset = horizontal ? titleH + 150 : 0;
+    const axisOffset = horizontal ? titleH + 130 : 0;
 
     if (title) {
       specs.push({ tempId: "title", type: "text", text: title, x: 0, y: 0, fontSize: 20, strokeColor: INK });
@@ -94,7 +94,11 @@ Example: {"title":"Study timeline","events":[{"label":"Recruit","detail":"n=120"
     });
 
     const width = horizontal ? axisLen : 360;
-    const height = horizontal ? axisOffset + 300 : titleH + axisLen + 80;
+    // Measured, not guessed: the lowest label box bottoms out at
+    // axisOffset + 40 + boxH (max 68), so +125 covers it with a small margin.
+    // The old +300 reserved ~200px of phantom height, which draw_board then
+    // used as the row height and turned into a huge empty band on the canvas.
+    const height = horizontal ? axisOffset + 125 : titleH + axisLen + 80;
 
     const origin = resolvePlacement(placement as Placement | undefined, width, height);
     const positioned = specs.map((s) => ({ ...s, x: (s.x ?? 0) + origin.x, y: (s.y ?? 0) + origin.y }));

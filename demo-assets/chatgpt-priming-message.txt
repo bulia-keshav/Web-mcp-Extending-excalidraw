@@ -3,8 +3,10 @@ Wait for it to reply "ready", then hit record and begin.
 =========================================================================
 
 I'm about to record a short screen demo of this whiteboard. Below is the exact
-sequence I'll walk through. Read it now so you don't have to work anything out
-mid-demo.
+sequence I'll walk through, with the exact arguments for every tool call. Read
+it now so you don't have to work anything out mid-demo. The arguments are not
+suggestions - use them verbatim. Every one of these calls has been tested
+against this app and works on the first try.
 
 RULES FOR THE WHOLE CONVERSATION
 - Do NOT draw anything until I actually ask. Just reply "ready" for now.
@@ -15,63 +17,266 @@ RULES FOR THE WHOLE CONVERSATION
 - Call how_to_draw_here once now, before replying, so you already know the
   tool set.
 - Keep every reply to one line. I'm narrating over you.
+- After every drawing step, call focus_on with the ids you just created, so
+  the thing you drew is actually on my screen. This is a screen recording - if
+  it lands off-camera the step is wasted.
+- Whenever you call get_scene, ALWAYS pass { "detail": "full" }. The default
+  truncates at 80 elements and silently omits the rest.
 
+=========================================================================
 THE SEQUENCE
+=========================================================================
 
-Step 1 — I'll say: "make this a bar chart and flag the outlier"
-  Call draw_chart:
-    kind: "bar", title: "Peak states explored"
-    labels: ["Arbiter","Cache","Bus","Scheduler"]
-    series: [{ values: [12480, 48120, 31004, 2411930] }]
-  Then call annotate on the Scheduler bar (points key "0:3"),
-  text "state explosion", side "top".
+--- STEP 1 -------------------------------------------------------------
+I'll say: "make this a bar chart and flag the outlier"
 
-Step 2 — I'll say: "plot how it grew with search depth, beside the first chart"
-  Call draw_chart:
-    kind: "line", title: "State growth by search depth"
-    labels: ["2","4","6","8","10","12"]
-    series: [
-      { name: "Arbiter",   values: [120, 460, 1100, 3200, 7400, 12480] },
-      { name: "Cache",     values: [300, 1400, 5200, 14000, 31000, 48120] },
-      { name: "Scheduler", values: [900, 8200, 61000, 340000, 1120000, 2411930] }
-    ]
-    placement: { mode: "next_to", refId: <refId from step 1>, side: "right", gap: 140 }
+Call draw_chart:
+{
+  "kind": "bar",
+  "title": "Peak states explored",
+  "labels": ["Arbiter", "Cache", "Bus", "Scheduler"],
+  "series": [{ "name": "States", "values": [198400, 402150, 311004, 2411930] }],
+  "placement": { "mode": "free_space" }
+}
 
-Step 3 — I'll say: "increase the width of the Scheduler bar and make it red"
-  Use the id from step 1's points map, key "0:3".
-  Call update_elements to roughly double its width, and restyle it with
-  strokeColor "#e03131", backgroundColor "#ffc9c9", fillStyle "solid".
+It returns "points" - bar ids keyed "series:label". KEEP IT. The Scheduler bar
+is key "0:3"; you need it again in step 3.
 
-Step 4 — I'll have SELECTED five boxes with my mouse. I'll say: "turn these
-into a proper state machine, left to right, with labelled transitions, and add
-a Timeout? branch after Busy that goes back to Request"
-  IMPORTANT: keep my existing boxes. Do not delete them and redraw.
-    a) call get_selection to get their real ids
-    b) call arrange with mode "row" to line them up
-    c) call add_elements to add ONE new diamond labelled "Timeout?" plus the
-       arrows, binding each arrow with start/end { id: <real id> } for my boxes
-       and { tempId: ... } for the new diamond.
-       Transitions: Idle->Request "req", Request->Grant "grant",
-       Grant->Busy "start", Busy->Release "done", Busy->Timeout? "expired",
-       Timeout?->Request "retry".
+Then call annotate:
+{
+  "targetId": "<points['0:3']>",
+  "text": "never finished - killed at depth 12",
+  "side": "left",
+  "color": "#e03131"
+}
 
-Step 5 — I'll say: "duplicate the selected diagram below it, and add two more
-states vertically below Busy called Backoff and Merged retry, coloured green"
-  a) call duplicate_elements on the state machine's ids, placement
-     { mode: "next_to", refId: <a state machine id>, side: "below", gap: 160 }
-  b) call add_elements for the two new states, positioned below the COPY's
-     Busy state (use the idMap duplicate_elements returned), arrows bound to
-     the copy, strokeColor "#2f9e44", backgroundColor "#b2f2bb",
-     fillStyle "solid"
+side MUST be "left". Scheduler is the tallest bar, so "top" puts the note on
+top of the chart title. This is the most likely thing to look broken on camera.
 
-Step 6 — I'll paste some run notes and say: "map these onto the canvas as a
-board"
-  Call draw_board with 3 panels, columns 2:
-    - "Run timeline"  kind "timeline"
-    - "Scheduler model" kind "flowchart"
-    - "Results" kind "table"
+Then focus_on with the four bar ids from "points".
 
-Step 7 — I may say "undo that". Call undo_agent_step with steps 1.
+
+--- STEP 2 -------------------------------------------------------------
+I'll say: "plot how it grew with search depth, beside the first chart"
+
+Call draw_chart:
+{
+  "kind": "line",
+  "title": "State growth by search depth",
+  "labels": ["2", "4", "6", "8", "10", "12"],
+  "series": [
+    { "name": "Arbiter",   "values": [1900, 7300, 17500, 51000, 118000, 198400] },
+    { "name": "Cache",     "values": [4800, 22000, 83000, 224000, 330000, 402150] },
+    { "name": "Scheduler", "values": [900, 8200, 61000, 340000, 1120000, 2411930] }
+  ],
+  "placement": { "mode": "next_to", "refId": "<points['0:0'] from step 1>",
+                 "side": "right", "gap": 180 }
+}
+
+Use the FIRST bar's id (key "0:0") as refId, not the chart title's id.
+
+
+--- STEP 3 -------------------------------------------------------------
+I'll say: "increase the width of the Scheduler bar and make it red"
+
+The bar is points["0:3"] from step 1. Colour first, then width.
+
+Call restyle:
+{
+  "ids": ["<points['0:3']>"],
+  "backgroundColor": "#ffc9c9",
+  "strokeColor": "#e03131",
+  "fillStyle": "solid",
+  "strokeWidth": 2
+}
+
+Then call get_scene { "detail": "full" }, find that bar, read its x and w, and
+call update_elements - shifting x left by half the width you add, so the bar
+stays centred on its own axis tick:
+{
+  "updates": [
+    { "id": "<points['0:3']>", "patch": { "x": <x - 18>, "width": <w + 36> } }
+  ]
+}
+
+Do NOT change y or height. Those encode the value 2,411,930 against the axis.
+
+
+--- STEP 4 -------------------------------------------------------------
+I'll have SELECTED five boxes with my mouse (Idle, Request, Grant, Busy,
+Release). I'll say: "turn these into a proper state machine, left to right,
+with labelled transitions, and add a Timeout? branch after Busy that goes back
+to Request"
+
+a) Call get_selection with {}. It returns my five boxes and their ids. Use it
+   to confirm the labels. Never ask me which boxes I mean - that read IS the
+   point of this step.
+
+b) Call draw_flowchart with EXACTLY this:
+{
+  "direction": "LR",
+  "nodes": [
+    { "id": "st1", "label": "Idle",     "shape": "stadium" },
+    { "id": "st2", "label": "Request" },
+    { "id": "st3", "label": "Grant" },
+    { "id": "st4", "label": "Busy" },
+    { "id": "st5", "label": "Timeout?", "shape": "diamond" },
+    { "id": "st6", "label": "Release" }
+  ],
+  "edges": [
+    { "from": "st1", "to": "st2", "label": "bus req" },
+    { "from": "st2", "to": "st3", "label": "arb ok" },
+    { "from": "st3", "to": "st4", "label": "start" },
+    { "from": "st4", "to": "st5" },
+    { "from": "st5", "to": "st2", "label": "yes / retry" },
+    { "from": "st5", "to": "st6", "label": "no" },
+    { "from": "st6", "to": "st1", "label": "done" }
+  ],
+  "placement": { "mode": "next_to", "refId": "<first id from get_selection>",
+                 "side": "below", "gap": 200 }
+}
+
+c) Leave my original five boxes alone. Do not delete them, do not move them,
+   do not run arrange on them. The clean machine goes BELOW my sketch so both
+   are visible at once.
+
+d) draw_flowchart returns "nodeIds", mapping st1..st6 to real canvas ids.
+   KEEP IT. Step 5 needs it and you cannot reconstruct it afterwards.
+
+e) Colour it - four restyle calls:
+   { "ids": ["<st1>"], "backgroundColor": "#d0ebff", "strokeColor": "#1971c2", "fillStyle": "solid", "strokeWidth": 2 }
+   { "ids": ["<st2>","<st3>","<st4>"], "backgroundColor": "#e9ecef", "strokeColor": "#495057", "fillStyle": "solid", "strokeWidth": 2 }
+   { "ids": ["<st5>"], "backgroundColor": "#fff3bf", "strokeColor": "#f08c00", "fillStyle": "solid", "strokeWidth": 2 }
+   { "ids": ["<st6>"], "backgroundColor": "#d3f9d8", "strokeColor": "#2f9e44", "fillStyle": "solid", "strokeWidth": 2 }
+
+f) Then focus_on with all six nodeIds.
+
+
+--- STEP 5 -------------------------------------------------------------
+I'll say: "duplicate that state machine below it, and add two more states
+vertically below Busy called Backoff and Merged retry, coloured green"
+
+a) Call get_scene { "detail": "full" }. The state machine's elements all share
+   the prefix draw_flowchart generated (they look like "dmtm...._n0" and
+   "dmtm...._n0_n1"). Collect ALL of them - six nodes AND seven arrows,
+   thirteen ids.
+
+b) Call duplicate_elements:
+{
+  "ids": ["<all 13 ids>"],
+  "placement": { "mode": "next_to", "refId": "<the st1 node id>",
+                 "side": "below", "gap": 280 }
+}
+   It returns "idMap" - original id to new id. KEEP IT. The copy's Busy state
+   is idMap[<st4 id>]. It carries the node labels AND the transition labels
+   across automatically; do not re-add them.
+
+c) Call get_scene { "detail": "full" } again, read the copy's Busy box, and
+   compute:  centre = x + (w / 2)     topY = y + 54 + 60
+
+d) Call add_elements with ABSOLUTE placement. Do NOT use
+   { "mode": "next_to", "refId": <copy's Busy> } here. Busy is inside a
+   duplicated group, and next_to anchors to the GROUP's bounding box, not to
+   Busy - the two states land under Idle, hundreds of pixels left, with a long
+   diagonal arrow across the diagram. Use this:
+{
+  "placement": { "mode": "absolute", "x": <centre - 89>, "y": <topY> },
+  "elements": [
+    { "tempId": "b1", "type": "rectangle", "label": "Backoff",
+      "x": 14, "y": 0, "width": 150, "height": 52,
+      "backgroundColor": "#d3f9d8", "strokeColor": "#2f9e44",
+      "fillStyle": "solid", "strokeWidth": 2 },
+    { "tempId": "b2", "type": "rectangle", "label": "Merged retry",
+      "x": 0, "y": 110, "width": 178, "height": 52,
+      "backgroundColor": "#d3f9d8", "strokeColor": "#2f9e44",
+      "fillStyle": "solid", "strokeWidth": 2 },
+    { "type": "arrow", "start": { "id": "<copy's Busy id>" },
+      "end": { "tempId": "b1" }, "strokeColor": "#2f9e44" },
+    { "type": "arrow", "label": "collapse", "start": { "tempId": "b1" },
+      "end": { "tempId": "b2" }, "strokeColor": "#2f9e44" }
+  ]
+}
+
+e) Then focus_on with the copy's Idle, its Release, and the Merged retry box.
+
+
+--- STEP 6 -------------------------------------------------------------
+I'll paste run notes and say: "map these onto the canvas as a board"
+
+Call draw_board ONCE with exactly this. columns is 1 on purpose - with 2
+columns the board is ~2,400px wide and will not fit in a screen recording.
+{
+  "title": "Verification run - bus protocol, week 3",
+  "columns": 1,
+  "placement": { "mode": "free_space" },
+  "panels": [
+    {
+      "title": "Runs",
+      "kind": "timeline",
+      "spec": { "events": [
+        { "label": "Arbiter + Cache", "detail": "18 Aug, under a minute" },
+        { "label": "Bus", "detail": "19 Aug, completed" },
+        { "label": "Scheduler start", "detail": "19 Aug" },
+        { "label": "Killed", "detail": "20 Aug, depth 12, 11h" }
+      ]}
+    },
+    {
+      "title": "Results",
+      "kind": "table",
+      "spec": {
+        "headers": ["Module", "Peak states", "Safety"],
+        "rows": [
+          ["Arbiter", "198,400", "Held"],
+          ["Cache", "402,150", "Held"],
+          ["Bus", "311,004", "Held"],
+          ["Scheduler", "2,411,930", "Inconclusive"]
+        ]
+      }
+    },
+    {
+      "title": "Next",
+      "kind": "hierarchy",
+      "spec": { "root": { "label": "Collapse the retry counters", "children": [
+        { "label": "Merge retries", "children": [{ "label": "Single backoff state" }] },
+        { "label": "Re-run Scheduler", "children": [{ "label": "Depth 12" }] },
+        { "label": "Check safety properties" }
+      ]}}
+    }
+  ]
+}
+
+Three panels only. Do not add a state-machine panel - I already drew that live
+in step 4, and a fourth panel makes the board too wide to film.
+
+Then focus_on using the per-panel ids draw_board returns.
+
+
+--- STEP 7 -------------------------------------------------------------
+I may say "undo that". Call undo_agent_step { "steps": 1 }.
+It reverses only your own last action and never touches anything I drew. It
+returns the name of the tool it undid - say that name back to me in one line.
+
+=========================================================================
+THINGS THAT WILL BITE YOU
+=========================================================================
+- get_scene truncates at 80 elements by default and sets "truncated": true.
+  ALWAYS pass { "detail": "full" }. If a lookup returns nothing, that is why -
+  the element is almost certainly still there.
+- Never call get_selection immediately after focus_on. The selection is applied
+  asynchronously and you will read count: 0. When I select with my mouse there
+  is no such problem.
+- next_to with a refId inside a group anchors to the GROUP's bounding box, not
+  to that element. Use absolute placement to sit under one specific node of a
+  diagram. This is the trap in step 5.
+- update_elements changing x / y / width / height on a shape that has a label
+  inside it leaves the label behind at its old position, and incoming arrows
+  can lose their end binding. It is safe on chart bars (step 3) because those
+  have no bound label. Anywhere else, delete and re-add instead.
+- annotate does not check for collisions. It puts the note exactly where you
+  ask. On the tallest bar of a titled chart, "top" lands on the title.
+- Never use these as node ids in draw_flowchart: call, click, class, end,
+  style, graph, subgraph, linkStyle. They are Mermaid keywords and the call
+  fails to parse. Use st1, st2, n1 and so on.
 
 If a call comes back with an error, fix it and retry once, silently. Don't
 narrate the error unless it fails twice.

@@ -91,150 +91,110 @@ npm package; no fork.
 
 ---
 
-## VIDEO SCRIPT — one story, voice-driven, target 2:55
+## VIDEO SCRIPT
 
-**The story:** I'm model-checking four modules of a bus protocol. One blows up.
-I find it, look at its state machine, build the abstraction that will tame it,
-and write the whole run up. Every beat uses what the last one produced.
+Your script. I only filled the two gaps you asked for (the low/high level
+examples, and the no-coordinates line) and fixed a few words. Everything else
+is as you wrote it.
 
-**Rhythm per beat** — you speak the prompt, then talk over the tool calls while
-they land. Never talk over your own prompt.
-
-> **[SPEAK]** the prompt → **[NARRATE]** while it works → next beat
-
-Keep the tool-call section expanded so every call is visible.
-
-**Before recording:**
-- Paste `demo-assets/chatgpt-priming-message.txt` as your first message and wait
-  for "ready". Then start recording.
-- Hand-draw five rough boxes, unaligned and messy: `Idle`, `Request`, `Grant`,
-  `Busy`, `Release`. They have to look like yours.
-- Have both CSVs and `run-notes.txt` open or in your clipboard manager.
+**Before recording:** paste `demo-assets/chatgpt-priming-message.txt`, wait for
+"ready", then record. Hand-draw five messy boxes first: `Idle`, `Request`,
+`Grant`, `Busy`, `Release`.
 
 ---
 
-### 0:00 – 0:24 · Open — what this is, and what I added
+**Open**
 
-*On screen: your five messy hand-drawn boxes.*
-
-> "Excalidraw is a great drawing board. But that's all it is — it has no idea
-> what a chart is, or a state machine, or a report.
-> So I built twenty-five WebMCP tools on top of it.
-> Low-level ones: draw a box, bind an arrow to it, restyle it, duplicate it.
-> And high-level ones that build a whole thing in a single call — charts,
-> tables, timelines, hierarchies, relationship graphs, and multi-panel boards.
-> Let's see what that does for an engineering student like me."
+> Excalidraw is a drawing board. That's all it is — it doesn't know what a chart
+> is, or a state machine, or a report.
+> So I built twenty-five WebMCP tools on top of it. Low level ones — draw a box,
+> bind an arrow to it, restyle it, duplicate it. And high level ones that build a
+> whole thing in one call — charts, tables, timelines, hierarchies, relationship
+> graphs, and multi-panel boards.
+> Now let's see how it will help an engineering student like me.
 
 ---
 
-### 0:24 – 0:50 · The simple chart
+**Bar chart** — *[SPEAK]*
 
-**[SPEAK]** *(paste CSV 1)*
-> "Here's my data — peak states explored per module. Can you make this a bar chart, and flag the outlier?"
+> Hey ChatGPT, can you please take this data and make it into a bar chart?
 
-**[NARRATE while draw_chart and annotate land]**
-> "That's draw_chart. And notice I never told it where to put anything — it sent
-> four labels and four numbers. The page worked out how tall each bar is, where
-> the gridlines go, and that two point four million should read as 2.5M.
-> Scheduler. Fifty times every other module. That's a state explosion."
+> That's the draw_chart tool. One call. Four labels, four numbers, no
+> coordinates anywhere. And Scheduler's off the scale — fifty times the others.
 
 ---
 
-### 0:50 – 1:12 · The harder chart, and these are real objects
+**Line chart** — *[SPEAK]*
 
-**[SPEAK]** *(paste CSV 2)*
-> "Now plot how the state count grew with search depth — one line per module — and put it beside the first chart."
+> Hey ChatGPT, can you please add a second plot, a line chart, beside the
+> current one?
 
-**[NARRATE]**
-> "Same tool, line mode, three series with a legend. And there's the curve:
-> flat for two modules, exponential for Scheduler."
-
-**[SPEAK]**
-> "Increase the width of the Scheduler bar and make it red."
-
-**[NARRATE]**
-> "These aren't flat images. They're real Excalidraw shapes I can grab and edit
-> myself. And every tool tags what it draws with an id — every bar, every point,
-> every state — so it can come back and change the exact one I mean."
+> Same tool, line mode. And don't forget these are all editable — real shapes on
+> my canvas, not a flat image.
 
 ---
 
-### 1:12 – 1:50 · My sketch becomes the state machine  ← the beat that matters
+**Found the culprit** — *[SPEAK]*
 
-**Do this on camera:** rubber-band select your five hand-drawn boxes. Pause so
-it's obvious *you* did it.
+> Can you please increase the width of the selected bar and make it red?
 
-**[SPEAK]**
-> "These are the states I sketched for Scheduler. Turn them into a proper state machine, left to right, with the transitions labelled — and add a 'Timeout?' branch after Busy that goes back to Request."
-
-**[NARRATE while it works]**
-> "Notice I never said which boxes. I just selected them with my cursor, and it
-> called get_selection and read my selection straight out of the app's state.
-> That's the whole idea — me and the agent working on the same thing, looking at
-> the same thing."
-
-**Now drag one state across the canvas.**
-
-> "And the transitions follow it. Real bindings, not lines drawn at coordinates."
+> The tools mark every block and every point with an id, so it can be referred
+> to easily.
 
 ---
 
-### 1:50 – 2:16 · The abstraction — my design, its hands
+**Flow diagram**
 
-**[SPEAK]**
-> "Duplicate the selected diagram below it, and add two more states vertically below Busy — 'Backoff' and 'Merged retry' — and colour them green."
+Next, I have a few blocks that I'd like to turn into a flow diagram.
+*Select the five boxes with the cursor.* — *[SPEAK]*
 
-**[NARRATE]**
-> "duplicate_elements brings the labels and transitions across, mints fresh ids,
-> and re-binds the arrows to the copy, so the two are independent.
-> And I'm not asking it to design the abstraction. I decided what merges and
-> what doesn't — that's the part that needs a person. It's doing the drawing I'd
-> otherwise be doing by hand. This is my canvas, and the agent is a tool on it,
-> not the architect of it."
+> These are the states I sketched for Scheduler. Turn them into a proper state
+> machine, left to right, with the transitions labelled — and add a 'Timeout?'
+> branch after Busy that goes back to Request.
 
----
-
-### 2:16 – 2:38 · Notes become a board
-
-**[SPEAK]** *(paste the run notes)*
-> "Here are my notes from the run. Map them onto the canvas as a board."
-
-**[NARRATE]**
-> "draw_board is the one that composes the others — it splits the notes into
-> panels and draws each one with the right tool underneath: a timeline for the
-> runs, a flow for the model, a table for the results."
+> Notice how I didn't refer to which blocks. I only selected them using my
+> cursor, and it used the get_selection tool — it read my selection straight out
+> of the app's state.
+> That's the whole idea. Me and my agent working and looking at the same thing.
 
 ---
 
-### 2:38 – 2:55 · Safety, and how it's built
+**Duplicate** — *[SPEAK]*
 
-**Click the Agent button, top-right.**
+> Can you please duplicate the selected diagram below, and add two more states
+> vertically below Busy named Merged retry and Backoff, and colour them green?
 
-> "Every call it made is logged here, each with its own undo button — and undo
-> reverses only the agent's work, never mine. Writes are append-only, so it
-> can't overwrite something I'm halfway through drawing.
-> Twenty-five tools on document.modelContext.registerTool, in the top-level
-> page. The agent brings the drawing. The judgement stays mine.
-> Open source — link's below."
+> It's doing the drawing I'd otherwise be doing by hand. This is my canvas, and
+> the agent is a tool on it, not the architect of it.
 
 ---
 
-### If you run long
-Cut in this order — least load-bearing first:
-1. "a timeline for the runs, a flow for the model, a table for the results" (−6s)
-2. The state-drag at the end of the state-machine beat (−6s)
-3. The "append-only" line in the close (−5s)
+**Board**
 
-**Never cut** the get_selection beat at 1:12, or the "my canvas, not the
-architect" line at 1:50. Those two are the argument.
+Next, I have some notes I'd like to turn into diagrams on my canvas. — *[SPEAK]*
 
-### Filming notes
-- One continuous take if you can. Cuts cost more time than they save.
-- Confirm the Agent badge is **green** before you start.
-- If Vercel shows a "Security Checkpoint", turn off Attack Challenge Mode in
-  Vercel → Project → Firewall first.
+> Here are my notes from the run. Map them onto the canvas as a board.
+
+> That's the draw_board tool, and it uses the other tools underneath —
+> hierarchy, table, chart, flow chart.
+
+---
+
+**Safety** — *click the Agent button*
+
+> Every call is logged here with its own undo button, and undo only reverses the
+> agent's work, never mine.
+> Twenty-five tools, open source, link's below.
+
+---
+
+### Notes
+- If you'd rather say the no-coordinates point later instead of on the bar
+  chart, move it to the line chart: "Still no coordinates from the agent — just
+  data."
+- Confirm the Agent badge is green before you start.
 - No background music — the rules forbid copyrighted audio.
-- Your face does not need to be on screen. Screen recording plus voice is fine.
+- Your face doesn't need to be on screen.
 
 ## Paste-ready assets
 

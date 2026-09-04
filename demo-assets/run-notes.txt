@@ -1,0 +1,16 @@
+Verification run, bus protocol, week 3.
+
+Runs. Arbiter and Cache were checked on 18 August and both completed in under a
+minute. Bus completed on 19 August. Scheduler was started on 19 August, hit the
+memory ceiling after eleven hours, and was killed on 20 August at depth 12.
+
+Model. Scheduler cycles Idle, Request, Grant, Busy, Release. On timeout it
+returns to Request and retries, and each retry carries its own counter, so the
+retry counters multiply out across the state space.
+
+Results. Peak states explored: Arbiter 12,480, Cache 48,120, Bus 31,004,
+Scheduler 2,411,930. All safety properties held on the three modules that
+completed. Scheduler is inconclusive.
+
+Next. Merge the retry states behind a single backoff state so the counters
+collapse, then re-run Scheduler at depth 12 and check the safety properties.

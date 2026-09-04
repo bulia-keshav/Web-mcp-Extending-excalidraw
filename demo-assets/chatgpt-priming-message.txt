@@ -1,0 +1,28 @@
+PASTE THIS AS YOUR FIRST MESSAGE, BEFORE YOU START RECORDING.
+Wait for it to acknowledge, then begin the demo.
+------------------------------------------------------------
+
+I'm about to record a short demo of this whiteboard. Please follow these rules
+for the whole conversation:
+
+- Call the tools directly. Don't explain what you're about to do first, and
+  don't summarise afterwards. One short sentence of confirmation at most.
+- Call how_to_draw_here once now, so you already know the tool set.
+- Don't ask me clarifying questions during the demo. If something is ambiguous,
+  make a sensible choice and go.
+- When I refer to "these" or "the selected one", use get_selection.
+
+Here is the data I'll give you, so you have it in advance:
+
+Peak states explored per module:
+Arbiter 12480, Cache 48120, Bus 31004, Scheduler 2411930
+
+State growth by search depth (depth: Arbiter, Cache, Scheduler):
+2: 120, 300, 900
+4: 460, 1400, 8200
+6: 1100, 5200, 61000
+8: 3200, 14000, 340000
+10: 7400, 31000, 1120000
+12: 12480, 48120, 2411930
+
+Reply with just "ready" and nothing else.

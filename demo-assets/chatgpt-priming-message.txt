@@ -1,28 +1,79 @@
-PASTE THIS AS YOUR FIRST MESSAGE, BEFORE YOU START RECORDING.
-Wait for it to acknowledge, then begin the demo.
-------------------------------------------------------------
+PASTE THIS AS YOUR FIRST MESSAGE IN THE CHAT, BEFORE YOU START RECORDING.
+Wait for it to reply "ready", then hit record and begin.
+=========================================================================
 
-I'm about to record a short demo of this whiteboard. Please follow these rules
-for the whole conversation:
+I'm about to record a short screen demo of this whiteboard. Below is the exact
+sequence I'll walk through. Read it now so you don't have to work anything out
+mid-demo.
 
-- Call the tools directly. Don't explain what you're about to do first, and
-  don't summarise afterwards. One short sentence of confirmation at most.
-- Call how_to_draw_here once now, so you already know the tool set.
-- Don't ask me clarifying questions during the demo. If something is ambiguous,
-  make a sensible choice and go.
-- When I refer to "these" or "the selected one", use get_selection.
+RULES FOR THE WHOLE CONVERSATION
+- Do NOT draw anything until I actually ask. Just reply "ready" for now.
+- When I ask, call the tool straight away. No preamble, no explaining what
+  you're about to do, no summary afterwards. One short sentence at most.
+- Never ask me a clarifying question during the demo. If something is
+  ambiguous, make a sensible choice and go.
+- Call how_to_draw_here once now, before replying, so you already know the
+  tool set.
+- Keep every reply to one line. I'm narrating over you.
 
-Here is the data I'll give you, so you have it in advance:
+THE SEQUENCE
 
-Peak states explored per module:
-Arbiter 12480, Cache 48120, Bus 31004, Scheduler 2411930
+Step 1 — I'll say: "make this a bar chart and flag the outlier"
+  Call draw_chart:
+    kind: "bar", title: "Peak states explored"
+    labels: ["Arbiter","Cache","Bus","Scheduler"]
+    series: [{ values: [12480, 48120, 31004, 2411930] }]
+  Then call annotate on the Scheduler bar (points key "0:3"),
+  text "state explosion", side "top".
 
-State growth by search depth (depth: Arbiter, Cache, Scheduler):
-2: 120, 300, 900
-4: 460, 1400, 8200
-6: 1100, 5200, 61000
-8: 3200, 14000, 340000
-10: 7400, 31000, 1120000
-12: 12480, 48120, 2411930
+Step 2 — I'll say: "plot how it grew with search depth, beside the first chart"
+  Call draw_chart:
+    kind: "line", title: "State growth by search depth"
+    labels: ["2","4","6","8","10","12"]
+    series: [
+      { name: "Arbiter",   values: [120, 460, 1100, 3200, 7400, 12480] },
+      { name: "Cache",     values: [300, 1400, 5200, 14000, 31000, 48120] },
+      { name: "Scheduler", values: [900, 8200, 61000, 340000, 1120000, 2411930] }
+    ]
+    placement: { mode: "next_to", refId: <refId from step 1>, side: "right", gap: 140 }
+
+Step 3 — I'll say: "increase the width of the Scheduler bar and make it red"
+  Use the id from step 1's points map, key "0:3".
+  Call update_elements to roughly double its width, and restyle it with
+  strokeColor "#e03131", backgroundColor "#ffc9c9", fillStyle "solid".
+
+Step 4 — I'll have SELECTED five boxes with my mouse. I'll say: "turn these
+into a proper state machine, left to right, with labelled transitions, and add
+a Timeout? branch after Busy that goes back to Request"
+  IMPORTANT: keep my existing boxes. Do not delete them and redraw.
+    a) call get_selection to get their real ids
+    b) call arrange with mode "row" to line them up
+    c) call add_elements to add ONE new diamond labelled "Timeout?" plus the
+       arrows, binding each arrow with start/end { id: <real id> } for my boxes
+       and { tempId: ... } for the new diamond.
+       Transitions: Idle->Request "req", Request->Grant "grant",
+       Grant->Busy "start", Busy->Release "done", Busy->Timeout? "expired",
+       Timeout?->Request "retry".
+
+Step 5 — I'll say: "duplicate the selected diagram below it, and add two more
+states vertically below Busy called Backoff and Merged retry, coloured green"
+  a) call duplicate_elements on the state machine's ids, placement
+     { mode: "next_to", refId: <a state machine id>, side: "below", gap: 160 }
+  b) call add_elements for the two new states, positioned below the COPY's
+     Busy state (use the idMap duplicate_elements returned), arrows bound to
+     the copy, strokeColor "#2f9e44", backgroundColor "#b2f2bb",
+     fillStyle "solid"
+
+Step 6 — I'll paste some run notes and say: "map these onto the canvas as a
+board"
+  Call draw_board with 3 panels, columns 2:
+    - "Run timeline"  kind "timeline"
+    - "Scheduler model" kind "flowchart"
+    - "Results" kind "table"
+
+Step 7 — I may say "undo that". Call undo_agent_step with steps 1.
+
+If a call comes back with an error, fix it and retry once, silently. Don't
+narrate the error unless it fails twice.
 
 Reply with just "ready" and nothing else.

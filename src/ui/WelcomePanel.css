@@ -1,116 +1,137 @@
-.welcome-backdrop {
+/*
+ * Grounded in the subject: this sits on a whiteboard, so the canvas stays
+ * visible behind it and the headline is set in the same hand-drawn face the
+ * canvas itself draws with. One bold element, everything else quiet.
+ */
+.welcome {
   position: fixed;
   inset: 0;
   z-index: 60;
   display: grid;
   place-items: center;
-  padding: 1.25rem;
-  background: rgba(16, 16, 22, 0.5);
-  backdrop-filter: blur(2px);
+  padding: 1.5rem;
+  /* Light enough that you can see you have landed on a drawing board. */
+  background: rgba(252, 252, 253, 0.72);
 }
 
-.welcome-card {
-  width: min(560px, 100%);
-  max-height: 88vh;
-  overflow-y: auto;
-  padding: 1.6rem 1.7rem 1.3rem;
-  border-radius: 14px;
+.welcome__note {
+  /* Without this the padding and border are added to the width and the note
+     overflows a phone viewport. */
+  box-sizing: border-box;
+  width: min(420px, 100%);
+  padding: 2rem 2rem 1.6rem;
   background: #fff;
-  color: #1b1b1f;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
+  border: 1.5px solid #1b1b1f;
+  border-radius: 2px;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #1b1b1f;
 }
 
-.welcome-card h1 {
-  margin: 0 0 0.5rem;
-  font-size: 1.35rem;
-  line-height: 1.25;
+.welcome__title {
+  margin: 0 0 0.85rem;
+  /* Excalidraw loads Excalifont for the canvas; reusing it ties the panel to
+     the thing it is sitting on. */
+  font-family: Excalifont, Virgil, "Comic Sans MS", cursive;
+  font-size: 1.9rem;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
 }
 
-.welcome-lede {
-  margin: 0 0 1rem;
-  font-size: 0.93rem;
+.welcome__title mark {
+  background: linear-gradient(transparent 58%, #ffec99 58%);
+  color: inherit;
+  padding: 0 0.1em;
+}
+
+.welcome__body {
+  margin: 0 0 0.55rem;
+  font-size: 0.9rem;
   line-height: 1.55;
-  opacity: 0.85;
+  color: #51515c;
+  max-width: 34ch;
 }
 
-.welcome-status {
-  padding: 0.6rem 0.75rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  margin-bottom: 1.1rem;
-}
-.welcome-status--on { background: #e8f8ee; color: #136b35; }
-.welcome-status--off { background: #fff6e6; color: #8a5a00; }
-
-.welcome-card h2 {
-  margin: 0 0 0.6rem;
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  opacity: 0.6;
+/* Keywords, not sentences: what it can draw, at a glance. */
+.welcome__keywords {
+  margin: 0 0 1.4rem;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: #868e96;
 }
 
-.welcome-ways {
-  margin: 0 0 0.4rem;
-  padding-left: 1.15rem;
+.welcome__choices {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
-}
-.welcome-ways li { font-size: 0.88rem; line-height: 1.5; }
-.welcome-ways strong { display: block; margin-bottom: 0.15rem; }
-.welcome-ways span { display: block; opacity: 0.78; }
-.welcome-ways code {
-  font-size: 0.82em;
-  padding: 1px 5px;
-  border-radius: 4px;
-  background: #f1f0f6;
-  word-break: break-all;
+  gap: 0.5rem;
 }
 
-.welcome-primary {
-  margin-top: 0.55rem;
-  padding: 0.45rem 0.85rem;
+.welcome__go {
+  display: block;
+  width: 100%;
+  padding: 0.62rem 1rem;
   border: 0;
-  border-radius: 8px;
+  border-radius: 3px;
   background: #6965db;
   color: #fff;
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   cursor: pointer;
 }
-.welcome-primary:hover { background: #5b57d1; }
+.welcome__go:hover { background: #5b57d1; }
+.welcome__go:focus-visible { outline: 2px solid #1b1b1f; outline-offset: 2px; }
 
-.welcome-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-top: 1.2rem;
-  padding-top: 0.9rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-}
-.welcome-ghost {
-  padding: 0.4rem 0.8rem;
-  border: 1px solid #dcdce4;
-  border-radius: 8px;
+.welcome__alt-go {
+  display: block;
+  width: 100%;
+  padding: 0.62rem 1rem;
+  border: 1px solid #d7d7e0;
+  border-radius: 3px;
   background: transparent;
+  color: #1b1b1f;
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  color: inherit;
 }
-.welcome-ghost:hover { background: #f4f4f8; }
-.welcome-link { font-size: 0.85rem; color: #6965db; text-decoration: none; }
-.welcome-link:hover { text-decoration: underline; }
+.welcome__alt-go:hover { border-color: #1b1b1f; }
+.welcome__alt-go:focus-visible { outline: 2px solid #1b1b1f; outline-offset: 2px; }
+
+.welcome__skip {
+  margin-top: 1.4rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.8rem;
+  color: #868e96;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.welcome__skip:hover { color: #1b1b1f; }
 
 @media (prefers-color-scheme: dark) {
-  .welcome-card { background: #232329; color: #e9e9ed; }
-  .welcome-ways code { background: #33333c; }
-  .welcome-status--on { background: #1d3b2a; color: #7ee2a8; }
-  .welcome-status--off { background: #3d3118; color: #ffd28a; }
-  .welcome-actions { border-top-color: rgba(255,255,255,0.1); }
-  .welcome-ghost { border-color: #44444f; }
-  .welcome-ghost:hover { background: #2d2d35; }
+  .welcome { background: rgba(24, 24, 28, 0.74); }
+  .welcome__note { background: #232329; border-color: #5a5a66; color: #ececf1; }
+  .welcome__body { color: #b6b6c0; }
+  .welcome__keywords { color: #8b8b96; }
+  .welcome__alt-go { border-color: #4a4a56; color: #ececf1; }
+  .welcome__alt-go:hover { border-color: #ececf1; }
+  /* A translucent yellow over a dark surface turns to muddy tan, so on dark
+     the highlight becomes a real marker block with ink-coloured text. */
+  .welcome__title mark {
+    background: #ffec99;
+    color: #1b1b1f;
+    border-radius: 1px;
+  }
+}
+
+@media (max-width: 420px) {
+  .welcome { padding: 1rem; }
+  .welcome__note { padding: 1.5rem 1.35rem 1.25rem; }
+  .welcome__title { font-size: 1.6rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome__go { transition: none; }
 }

@@ -1,6 +1,6 @@
 import { defineTool, z, placementSchema } from "../defineTool";
 import { buildFromSkeletons, measureSkeletons, type SkeletonSpec } from "../../excalidraw/skeleton";
-import { appendElements, patchElements, softDelete, getLiveElements, getElementById } from "../../excalidraw/sceneOps";
+import { appendElements, patchElements, softDelete, getLiveElements, getElementById, moveUpdates } from "../../excalidraw/sceneOps";
 import { resolvePlacement, type Placement } from "../../excalidraw/placement";
 import { requireAPI } from "../../excalidraw/apiRef";
 import { noteCreated, noteRemoved, noteBeforePatch } from "../registry";
@@ -146,8 +146,15 @@ Example: {"updates":[{"id":"abc123","patch":{"x":400,"backgroundColor":"#ffec99"
 
     for (const u of updates) {
       if (!getElementById(u.id)) { missing.push(u.id); continue; }
-      const { text, fontSize, ...rest } = u.patch as Record<string, unknown>;
+      const { text, fontSize, x, y, ...rest } = u.patch as Record<string, unknown>;
 
+      // A move has to take the shape's bound label with it, or the shape
+      // arrives empty and the text stays behind.
+      if (x !== undefined || y !== undefined) {
+        expanded.push(
+          ...moveUpdates([{ id: u.id, x: x as number | undefined, y: y as number | undefined }]),
+        );
+      }
       if (Object.keys(rest).length) expanded.push({ id: u.id, patch: rest });
 
       if (text != null || fontSize != null) {

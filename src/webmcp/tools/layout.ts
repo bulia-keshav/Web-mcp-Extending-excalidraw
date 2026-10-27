@@ -1,5 +1,5 @@
 import { defineTool, z } from "../defineTool";
-import { getLiveElements, patchElements } from "../../excalidraw/sceneOps";
+import { getLiveElements, patchElements, moveUpdates } from "../../excalidraw/sceneOps";
 import { noteBeforePatch } from "../registry";
 
 export const arrange = defineTool({
@@ -31,14 +31,14 @@ Example: {"ids":["a1","b2","c3"],"mode":"row","gap":60,"align":"center"}`,
     const startX = Math.min(...targets.map((el) => el.x));
     const startY = Math.min(...targets.map((el) => el.y));
 
-    const updates: Array<{ id: string; patch: Record<string, unknown> }> = [];
+    const moves: Array<{ id: string; x: number; y: number }> = [];
 
     if (mode === "row") {
       const maxH = Math.max(...targets.map((el) => el.height));
       let x = startX;
       for (const el of targets) {
         const y = align === "top" ? startY : startY + (maxH - el.height) / 2;
-        updates.push({ id: el.id, patch: { x, y } });
+        moves.push({ id: el.id, x, y });
         x += el.width + gap;
       }
     } else if (mode === "column") {
@@ -46,7 +46,7 @@ Example: {"ids":["a1","b2","c3"],"mode":"row","gap":60,"align":"center"}`,
       let y = startY;
       for (const el of targets) {
         const x = align === "left" ? startX : startX + (maxW - el.width) / 2;
-        updates.push({ id: el.id, patch: { x, y } });
+        moves.push({ id: el.id, x, y });
         y += el.height + gap;
       }
     } else {
@@ -56,10 +56,12 @@ Example: {"ids":["a1","b2","c3"],"mode":"row","gap":60,"align":"center"}`,
       targets.forEach((el, i) => {
         const r = Math.floor(i / cols);
         const c = i % cols;
-        updates.push({ id: el.id, patch: { x: startX + c * cellW, y: startY + r * cellH } });
+        moves.push({ id: el.id, x: startX + c * cellW, y: startY + r * cellH });
       });
     }
 
+    // Carries each shape's bound label with it.
+    const updates = moveUpdates(moves);
     noteBeforePatch(updates.map((u) => u.id));
     const res = patchElements(updates);
     return { ok: true, mode, arranged: res.patched, missing: ids.filter((id) => !byId.has(id)) };

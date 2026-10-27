@@ -103,3 +103,44 @@ export function getSelectedElements(): ExcalidrawElement[] {
   const selected = requireAPI().getAppState().selectedElementIds;
   return getLiveElements().filter((el) => selected[el.id]);
 }
+
+/**
+ * Turn "put element X at (x, y)" into the patches that actually move it.
+ *
+ * A shape's visible label is a separate text element bound to it. Excalidraw
+ * keeps the two together while a human drags, but setting coordinates directly
+ * moves only the container — the label stays where it was and the shape
+ * arrives empty. Any programmatic move has to carry the bound text along.
+ */
+export function moveUpdates(
+  moves: Array<{ id: string; x?: number; y?: number }>,
+): Array<{ id: string; patch: Record<string, unknown> }> {
+  const live = getLiveElements();
+  const byId = new Map(live.map((el) => [el.id, el]));
+
+  const boundTextOf = new Map<string, ExcalidrawElement>();
+  for (const el of live) {
+    const containerId = (el as unknown as { containerId?: string }).containerId;
+    if (containerId) boundTextOf.set(containerId, el);
+  }
+
+  const out: Array<{ id: string; patch: Record<string, unknown> }> = [];
+
+  for (const move of moves) {
+    const el = byId.get(move.id);
+    if (!el) continue;
+
+    const nextX = move.x ?? el.x;
+    const nextY = move.y ?? el.y;
+    const dx = nextX - el.x;
+    const dy = nextY - el.y;
+    if (dx === 0 && dy === 0) continue;
+
+    out.push({ id: el.id, patch: { x: nextX, y: nextY } });
+
+    const label = boundTextOf.get(el.id);
+    if (label) out.push({ id: label.id, patch: { x: label.x + dx, y: label.y + dy } });
+  }
+
+  return out;
+}

@@ -8,6 +8,9 @@ import { loadScene, scheduleSave } from "./excalidraw/persistence";
 import { currentMode } from "./webmcp/detect";
 import AgentActivityPanel from "./ui/AgentActivityPanel";
 import PickerHost from "./ui/PickerHost";
+import WelcomePanel from "./ui/WelcomePanel";
+import ChatPanel from "./ui/ChatPanel";
+import { allTools } from "./webmcp/tools";
 
 const initialData = loadScene();
 
@@ -15,6 +18,7 @@ export default function App() {
   const [api, setApi] = useState<ExcalidrawImperativeAPI | null>(null);
   const [mode, setMode] = useState(currentMode());
   const [panelOpen, setPanelOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const onApi = useCallback((next: ExcalidrawImperativeAPI) => {
     setExcalidrawAPI(next);
@@ -43,17 +47,32 @@ export default function App() {
         initialData={initialData}
         onChange={onChange}
         renderTopRightUI={() => (
-          <button
-            className="agent-panel-toggle"
-            onClick={() => setPanelOpen((v) => !v)}
-            title="Show what the agent has done"
-          >
-            <span className={`agent-dot agent-dot--${mode}`} />
-            Agent
-          </button>
+          <>
+            <button
+              className="agent-panel-toggle"
+              onClick={() => setChatOpen((v) => !v)}
+              title="Ask the canvas to draw something"
+            >
+              Ask
+            </button>
+            <button
+              className="agent-panel-toggle"
+              onClick={() => setPanelOpen((v) => !v)}
+              title="Show what the agent has done"
+            >
+              <span className={`agent-dot agent-dot--${mode}`} />
+              Agent
+            </button>
+          </>
         )}
       />
       <AgentActivityPanel open={panelOpen} onClose={() => setPanelOpen(false)} mode={mode} />
+      <ChatPanel open={chatOpen} onClose={() => setChatOpen(false)} />
+      <WelcomePanel
+        mode={mode}
+        toolCount={allTools.length}
+        onOpenChat={() => setChatOpen(true)}
+      />
       <PickerHost />
     </div>
   );
